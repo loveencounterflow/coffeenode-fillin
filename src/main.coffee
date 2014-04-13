@@ -4,7 +4,7 @@
 # njs_fs                    = require 'fs'
 # njs_path                  = require 'path'
 #...........................................................................................................
-# BAP                       = require 'coffeenode-bitsnpieces'
+BAP                     	= require 'coffeenode-bitsnpieces'
 TYPES                     = require 'coffeenode-types'
 TEXT                      = require 'coffeenode-text'
 TRM                       = require 'coffeenode-trm'
@@ -231,7 +231,7 @@ echo                      = TRM.echo.bind TRM
       name = '/' + name unless name[ 0 ] is '/'
       [ container
         key
-        new_value ] = BAP.container_and_facet_from_locator data, name
+        new_value ] = @container_and_facet_from_locator data, name
       return prefix + ( if TYPES.isa_text new_value then new_value else rpr new_value ) + tail
     #---------------------------------------------------------------------------------------------------
     return R
@@ -246,7 +246,7 @@ echo                      = TRM.echo.bind TRM
   escaper    ?= '\\'
   forbidden  ?= """{}<>()|*+.,;:!"'$%&/=?`´#"""
   #.........................................................................................................
-  forbidden   = @list_of_unique_chrs activator + opener + closer + seperator + escaper + forbidden
+  forbidden   = TEXT.list_of_unique_chrs activator + opener + closer + seperator + escaper + forbidden
   forbidden   = ( BAP.escape_regex forbidden.join '' ) + '\\s'
   #.........................................................................................................
   activator   = BAP.escape_regex activator
