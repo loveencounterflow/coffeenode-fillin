@@ -33,13 +33,9 @@ templates = [
   "helo ${name}"
   "helo \\${name}"
   "helo ${{name}}"
-  "helo ${name:quoted}"
-  "helo $name:quoted"
   "helo $name!"
   "helo +name!"
-  "helo +(name:quoted)!"
   "helo !+name!"
-  "helo !+(name:quoted)!"
   ]
 
 @test_string_interpolation = ->
@@ -50,9 +46,9 @@ formats =
   'quoted': ( text ) -> return '"' + text + '"'
 
 for template in templates
-  log ( TRM.green 'A' ), ( TRM.grey template ), ( TRM.gold @fill_in template, data, formats )
+  log ( TRM.green 'A' ), ( TRM.grey template ), ( TRM.gold FILLIN.fill_in template, data, formats )
 
-custom_fill_in = @fill_in.create null, '+', '(', ')', '~', '!'
+custom_fill_in = FILLIN.fill_in.create null, '+', '(', ')', '~', '!'
 for template in templates
   log ( TRM.red 'B' ), ( TRM.grey template ), ( TRM.gold custom_fill_in template, data, formats )
 

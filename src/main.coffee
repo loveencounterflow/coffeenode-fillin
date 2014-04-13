@@ -216,7 +216,7 @@ echo                      = TRM.echo.bind TRM
 # STRING INTERPOLATION
 #-----------------------------------------------------------------------------------------------------------
 @_fill_in_get_method = ( matcher ) ->
-  return ( template, data_or_handler ) ->
+  return ( template, data_or_handler ) =>
     #.......................................................................................................
     if TYPES.isa_function data_or_handler
       handler = data_or_handler
@@ -286,7 +286,7 @@ _fill_in_matcher      = @_fill_in_get_matcher()
 ### TAINT use options argument ###
 @fill_in.create = ( activator, opener, closer, seperator, escaper ) ->
   matcher = @fill_in.get_matcher activator, opener, closer, seperator, escaper
-  R       = _fill_in_get_method matcher
+  R       = @_fill_in_get_method matcher
   return R
 @fill_in.create = @fill_in.create.bind @
 
