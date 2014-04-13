@@ -1,0 +1,29 @@
+{
+  "name": "coffeenode-fillin",
+  "version": "0.0.1",
+  "description": "String Interpolation library; also contains methods to fill in key/value pairs of objects and to iterate over nested facets",
+  "main": "lib/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "string",
+    "interpolation",
+    "options",
+    "templating"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loveencounterflow/coffeenode-fillin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/loveencounterflow/coffeenode-fillin/issues"
+  },
+  "homepage": "https://github.com/loveencounterflow/coffeenode-fillin",
+  "dependencies": {
+    "coffeenode-trm": "^0.1.14",
+    "coffeenode-types": "^0.1.1"
+  }
+}
