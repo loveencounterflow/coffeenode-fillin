@@ -24,33 +24,74 @@ FILLIN                    = require './main'
 
 
 #-----------------------------------------------------------------------------------------------------------
+@test_standard_syntax_1 = ->
+  templates_and_expectations = [
+    [ 'helo name',      'helo name', ]
+    [ 'helo ${name}',   'helo Jim', ]
+    [ 'helo \\$name',   'helo \\$name', ]
+    [ 'helo \\${name}', 'helo \\${name}', ]
+    [ 'helo ${{name}}', 'helo ${{name}}', ]
+    [ 'helo $name!',    'helo Jim!', ]
+    [ 'helo +name!',    'helo +name!', ]
+    [ 'helo !+name!',   'helo !+name!', ]
+    ]
+  #.........................................................................................................
+  data =
+    'name':   'Jim'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result = FILLIN.fill_in template, data
+    log ( TRM.green 'A' ), ( TRM.grey template ), ( TRM.gold result )
+    assert.equal result, expected
+
+#-----------------------------------------------------------------------------------------------------------
+@test_custom_syntax_1 = ->
+  templates_and_expectations = [
+    [ 'helo name',      'helo name', ]
+    [ 'helo ${name}',   'helo Jim', ]
+    [ 'helo \\$name',   'helo \\$name', ]
+    [ 'helo \\${name}', 'helo \\${name}', ]
+    [ 'helo ${{name}}', 'helo ${{name}}', ]
+    [ 'helo $name!',    'helo Jim!', ]
+    [ 'helo +name!',    'helo +name!', ]
+    [ 'helo !+name!',   'helo !+name!', ]
+    ]
+  #.........................................................................................................
+  data =
+    'name':   'Jim'
+  custom_fill_in = FILLIN.fill_in.create null, '+', '(', ')', '~', '!'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    log ( TRM.grey template ), ( TRM.gold custom_fill_in template, data )
+    result = FILLIN.fill_in template, data
+    # assert.equal result, expected
+
+#-----------------------------------------------------------------------------------------------------------
 @main = ->
-  @test_string_interpolation
+  @test_standard_syntax_1()
+  @test_custom_syntax_1()
 
 ############################################################################################################
-templates = [
-  "helo name"
-  "helo ${name}"
-  "helo \\${name}"
-  "helo ${{name}}"
-  "helo $name!"
-  "helo +name!"
-  "helo !+name!"
-  ]
 
-@test_string_interpolation = ->
+# FILLIN  ▶  A helo name helo name
+# FILLIN  ▶  A helo ${name} helo Jim
+# FILLIN  ▶  A helo \${name} helo \${name}
+# FILLIN  ▶  A helo ${{name}} helo ${{name}}
+# FILLIN  ▶  A helo $name! helo Jim!
+# FILLIN  ▶  A helo +name! helo +name!
+# FILLIN  ▶  A helo !+name! helo !+name!
 
-data =
-  'name':   'Jim'
-formats =
-  'quoted': ( text ) -> return '"' + text + '"'
+# FILLIN  ▶  B helo name helo name
+# FILLIN  ▶  B helo ${name} helo ${name}
+# FILLIN  ▶  B helo \${name} helo \${name}
+# FILLIN  ▶  B helo ${{name}} helo ${{name}}
+# FILLIN  ▶  B helo $name! helo Jim!
+# FILLIN  ▶  B helo +name! helo +name!
+# FILLIN  ▶  B helo !+name! helo !+name!
 
-for template in templates
-  log ( TRM.green 'A' ), ( TRM.grey template ), ( TRM.gold FILLIN.fill_in template, data, formats )
 
-custom_fill_in = FILLIN.fill_in.create null, '+', '(', ')', '~', '!'
-for template in templates
-  log ( TRM.red 'B' ), ( TRM.grey template ), ( TRM.gold custom_fill_in template, data, formats )
+# for template in templates
+#   log ( TRM.red 'B' ), ( TRM.grey template ), ( TRM.gold custom_fill_in template, data )
 
 
 

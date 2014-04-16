@@ -1,10 +1,11 @@
 
+
 ############################################################################################################
 # njs_util                  = require 'util'
 # njs_fs                    = require 'fs'
 # njs_path                  = require 'path'
 #...........................................................................................................
-BAP                     	= require 'coffeenode-bitsnpieces'
+BAP                       = require 'coffeenode-bitsnpieces'
 TYPES                     = require 'coffeenode-types'
 TEXT                      = require 'coffeenode-text'
 TRM                       = require 'coffeenode-trm'
@@ -211,34 +212,11 @@ echo                      = TRM.echo.bind TRM
   return [ container, key, old_value, ]
 
 
-
 #===========================================================================================================
 # STRING INTERPOLATION
 #-----------------------------------------------------------------------------------------------------------
-@_fill_in_get_method = ( matcher ) ->
-  return ( template, data_or_handler ) =>
-    #.......................................................................................................
-    if TYPES.isa_function data_or_handler
-      handler = data_or_handler
-      data    = null
-    else
-      data    = data_or_handler
-      handler = null
-    #---------------------------------------------------------------------------------------------------
-    R = template.replace matcher, ( ignored, prefix, markup, bare, bracketed, tail ) =>
-      name = bare ? bracketed
-      return handler null, name if handler?
-      name = '/' + name unless name[ 0 ] is '/'
-      [ container
-        key
-        new_value ] = @container_and_facet_from_locator data, name
-      return prefix + ( if TYPES.isa_text new_value then new_value else rpr new_value ) + tail
-    #---------------------------------------------------------------------------------------------------
-    return R
-
-#-----------------------------------------------------------------------------------------------------------
 ### TAINT use options argument ###
-@_fill_in_get_matcher = ( activator, opener, closer, seperator, escaper, forbidden ) ->
+@new_matcher = ( activator, opener, closer, seperator, escaper, forbidden ) ->
   activator  ?= '$'
   opener     ?= '{'
   closer     ?= '}'
@@ -277,26 +255,42 @@ echo                      = TRM.echo.bind TRM
     ///
 
 #-----------------------------------------------------------------------------------------------------------
-_fill_in_matcher      = @_fill_in_get_matcher()
-@fill_in              = @_fill_in_get_method _fill_in_matcher
-@fill_in.matcher      = _fill_in_matcher
-@fill_in.get_matcher  = @_fill_in_get_matcher.bind @
-
-#-----------------------------------------------------------------------------------------------------------
 ### TAINT use options argument ###
-@fill_in.create = ( activator, opener, closer, seperator, escaper ) ->
+@new_method = ( activator, opener, closer, seperator, escaper ) ->
   matcher = @fill_in.get_matcher activator, opener, closer, seperator, escaper
   R       = @_fill_in_get_method matcher
   return R
-@fill_in.create = @fill_in.create.bind @
+# @fill_in.create = @fill_in.create.bind @
 
 #-----------------------------------------------------------------------------------------------------------
-@fill_in.container = ( container, handler ) ->
-  ### TAINT does not yet support custom matchers ###
-  # switch arity = arguments.length
-  #   when 2
-  #.........................................................................................................
+@fill_in = ( template_or_container, matcher, data_or_handler ) ->
+  if TYPES.isa_text template_or_container
+    return @fill_in_template  template_or_container, matcher, data_or_handler
+  return @fill_in_container template_or_container, matcher, data_or_handler
+
+#-----------------------------------------------------------------------------------------------------------
+@fill_in_template = ( template, matcher, data_or_handler ) =>
+  return @_fill_in_template template, ( @_get_matcher_data_and_handler matcher, data_or_handler )...
+
+#-----------------------------------------------------------------------------------------------------------
+@_fill_in_template = ( template, matcher, data, handler ) =>
+  #---------------------------------------------------------------------------------------------------------
+  R = template.replace matcher, ( ignored, prefix, markup, bare, bracketed, tail ) =>
+    name = bare ? bracketed
+    return handler null, name if handler?
+    name = '/' + name unless name[ 0 ] is '/'
+    [ container
+      key
+      new_value ] = @container_and_facet_from_locator data, name
+    return prefix + ( if TYPES.isa_text new_value then new_value else rpr new_value ) + tail
+  #---------------------------------------------------------------------------------------------------------
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@fill_in_container = ( container, data_or_handler ) ->
+  [ matcher, data, handler, ] = @_get_matcher_data_and_handler matcher, data_or_handler
   errors = null
+  #.........................................................................................................
   loop
     change_count = 0
     #-------------------------------------------------------------------------------------------------------
@@ -323,8 +317,25 @@ _fill_in_matcher      = @_fill_in_get_matcher()
     throw new Error '\nerrors have occurred:\n' + ( ( m for m of errors ).sort().join '\n' ) + '\n'
   ### TAINT should be calling handler on error ###
   return container
-@fill_in.container = @fill_in.container.bind @
+# @fill_in.container = @fill_in.container.bind @
 
+
+#===========================================================================================================
+# HELPERS
+#-----------------------------------------------------------------------------------------------------------
+@_get_matcher_data_and_handler = ( matcher, data_or_handler ) ->
+  if data_or_handler?
+    [ data, handler, ] = @_get_data_and_handler data_or_handler
+  else
+    [ data, handler, ] = @_get_data_and_handler matcher
+    matcher = @default_matcher
+  return [ matcher, data, handler, ]
+
+#-----------------------------------------------------------------------------------------------------------
+@_get_data_and_handler = ( data_or_handler ) ->
+  if TYPES.isa_function data_or_handler
+    return [ null, data_or_handler, ]
+  return [ data_or_handler, null, ]
 
 
 
