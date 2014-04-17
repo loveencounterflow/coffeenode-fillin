@@ -216,21 +216,19 @@ echo                      = TRM.echo.bind TRM
 # STRING INTERPOLATION
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT use options argument ###
-@new_matcher = ( activator, opener, closer, seperator, escaper, forbidden ) ->
+@new_matcher = ( activator, opener, closer, escaper, forbidden ) ->
   activator  ?= '$'
   opener     ?= '{'
   closer     ?= '}'
-  seperator  ?= ':'
   escaper    ?= '\\'
   forbidden  ?= """{}<>()|*+.,;:!"'$%&/=?`´#"""
   #.........................................................................................................
-  forbidden   = TEXT.list_of_unique_chrs activator + opener + closer + seperator + escaper + forbidden
+  forbidden   = TEXT.list_of_unique_chrs activator + opener + closer + escaper + forbidden
   forbidden   = ( BAP.escape_regex forbidden.join '' ) + '\\s'
   #.........................................................................................................
   activator   = BAP.escape_regex activator
   opener      = BAP.escape_regex opener
   closer      = BAP.escape_regex closer
-  seperator   = BAP.escape_regex seperator
   escaper     = BAP.escape_regex escaper
   #.........................................................................................................
   return ///
@@ -255,14 +253,6 @@ echo                      = TRM.echo.bind TRM
     ///
 
 #-----------------------------------------------------------------------------------------------------------
-### TAINT use options argument ###
-@new_method = ( activator, opener, closer, seperator, escaper ) ->
-  matcher = @fill_in.get_matcher activator, opener, closer, seperator, escaper
-  R       = @_fill_in_get_method matcher
-  return R
-# @fill_in.create = @fill_in.create.bind @
-
-#-----------------------------------------------------------------------------------------------------------
 @fill_in = ( template_or_container, matcher, data_or_handler ) ->
   if TYPES.isa_text template_or_container
     return @fill_in_template  template_or_container, matcher, data_or_handler
@@ -274,10 +264,14 @@ echo                      = TRM.echo.bind TRM
 
 #-----------------------------------------------------------------------------------------------------------
 @_fill_in_template = ( template, matcher, data, handler ) =>
+  # debug 'template:',  rpr template
+  # debug 'matcher:',   rpr matcher
+  # debug 'data:',      rpr data
+  # debug 'handler:',   rpr handler
   #---------------------------------------------------------------------------------------------------------
   R = template.replace matcher, ( ignored, prefix, markup, bare, bracketed, tail ) =>
     name = bare ? bracketed
-    return handler null, name if handler?
+    return prefix + ( handler null, name ) + tail if handler?
     name = '/' + name unless name[ 0 ] is '/'
     [ container
       key
@@ -337,6 +331,7 @@ echo                      = TRM.echo.bind TRM
     return [ null, data_or_handler, ]
   return [ data_or_handler, null, ]
 
-
+#-----------------------------------------------------------------------------------------------------------
+@default_matcher = @new_matcher()
 
 

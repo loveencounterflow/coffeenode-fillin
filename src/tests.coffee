@@ -10,7 +10,7 @@ TEXT                      = require 'coffeenode-text'
 TRM                       = require 'coffeenode-trm'
 # FS                        = require 'coffeenode-fs'
 rpr                       = TRM.rpr.bind TRM
-badge                     = 'FILLIN'
+badge                     = 'FILLIN/tests'
 log                       = TRM.get_logger 'plain',     badge
 info                      = TRM.get_logger 'info',      badge
 whisper                   = TRM.get_logger 'whisper',   badge
@@ -21,6 +21,24 @@ help                      = TRM.get_logger 'help',      badge
 echo                      = TRM.echo.bind TRM
 assert                    = require 'assert'
 FILLIN                    = require './main'
+
+
+#-----------------------------------------------------------------------------------------------------------
+@test_argument_retrieval = ->
+  handler = ->
+  data    = 'foo': 'bar'
+  matcher = /.*/
+  probes  = [
+    [ [ handler, ], [ FILLIN.default_matcher, null, handler, ], ]
+    [ [ matcher, data, ], [ matcher, data, null, ], ]
+    [ [ matcher, handler, ], [ matcher, null, handler, ], ]
+    [ [ data, ], [ FILLIN.default_matcher, data, null, ], ]
+    ]
+  assert.notEqual FILLIN.default_matcher, undefined
+  for [ parameters, expected, ] in probes
+    result = FILLIN._get_matcher_data_and_handler parameters...
+    # log ( TRM.green 'test_argument_retrieval' ), ( TRM.grey parameters ), ( TRM.gold result )
+    assert.deepEqual result, expected
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -41,35 +59,63 @@ FILLIN                    = require './main'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
     result = FILLIN.fill_in template, data
-    log ( TRM.green 'A' ), ( TRM.grey template ), ( TRM.gold result )
+    log ( TRM.green 'test_standard_syntax_1' ), ( TRM.grey template ), ( TRM.gold result )
     assert.equal result, expected
 
 #-----------------------------------------------------------------------------------------------------------
 @test_custom_syntax_1 = ->
   templates_and_expectations = [
     [ 'helo name',      'helo name', ]
-    [ 'helo ${name}',   'helo Jim', ]
+    [ 'helo ${name}',   'helo ${name}', ]
     [ 'helo \\$name',   'helo \\$name', ]
     [ 'helo \\${name}', 'helo \\${name}', ]
     [ 'helo ${{name}}', 'helo ${{name}}', ]
-    [ 'helo $name!',    'helo Jim!', ]
-    [ 'helo +name!',    'helo +name!', ]
+    [ 'helo $name!',    'helo $name!', ]
+    [ 'helo +name!',    'helo Jim!', ]
     [ 'helo !+name!',   'helo !+name!', ]
+    [ 'helo +(name)!',   'helo Jim!', ]
     ]
   #.........................................................................................................
   data =
     'name':   'Jim'
-  custom_fill_in = FILLIN.fill_in.create null, '+', '(', ')', '~', '!'
+  matcher = FILLIN.new_matcher '+', '(', ')', '!'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    log ( TRM.grey template ), ( TRM.gold custom_fill_in template, data )
-    result = FILLIN.fill_in template, data
-    # assert.equal result, expected
+    result = FILLIN.fill_in template, matcher, data
+    log ( TRM.green 'test_custom_syntax_1' ), ( TRM.grey template ), ( TRM.gold result )
+    assert.equal result, expected
+
+#-----------------------------------------------------------------------------------------------------------
+@test_custom_syntax_2 = ->
+  templates_and_expectations = [
+    [ 'helo name',      'helo name', ]
+    [ 'helo ${name}',   'helo ${name}', ]
+    [ 'helo \\$name',   'helo \\$name', ]
+    [ 'helo \\${name}', 'helo \\${name}', ]
+    [ 'helo ${{name}}', 'helo ${{name}}', ]
+    [ 'helo $name!',    'helo $name!', ]
+    [ 'helo +name!',    'helo Jim!', ]
+    [ 'helo !+name!',   'helo !+name!', ]
+    [ 'helo +(name)!',   'helo Jim!', ]
+    ]
+  #.........................................................................................................
+  data =
+    'name':   'Jim'
+  matcher = FILLIN.new_matcher '+', '(', ')', '!'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result = FILLIN.fill_in template, matcher, ( error, key ) ->
+      throw error if error?
+      return if key is 'name' then 'Jim' else '???'
+    log ( TRM.green 'test_custom_syntax_1' ), ( TRM.grey template ), ( TRM.gold result )
+    assert.equal result, expected
 
 #-----------------------------------------------------------------------------------------------------------
 @main = ->
+  @test_argument_retrieval()
   @test_standard_syntax_1()
   @test_custom_syntax_1()
+  @test_custom_syntax_2()
 
 ############################################################################################################
 
