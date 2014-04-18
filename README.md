@@ -33,7 +33,10 @@ It's possible to use a list as datasource; given JavaScript's dynamic and object
 possible to mix indexed and named references:
 
 ````coffeescript
-James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B
+template  = '$name was captain on $0, $1, and $2'
+data      = [ 'NCC-1701', 'NCC-1701-A', 'NCC-1701-B', ]
+# now `FILLIN.fill_in template, data` gives
+# 'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B'
 ````
 
 ````coffeescript
