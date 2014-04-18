@@ -215,13 +215,17 @@ echo                      = TRM.echo.bind TRM
 #===========================================================================================================
 # STRING INTERPOLATION
 #-----------------------------------------------------------------------------------------------------------
+# @new_method = ( matcher_hint ) ->
+
+#-----------------------------------------------------------------------------------------------------------
 ### TAINT use options argument ###
-@new_matcher = ( activator, opener, closer, escaper, forbidden ) ->
-  activator  ?= '$'
-  opener     ?= '{'
-  closer     ?= '}'
-  escaper    ?= '\\'
-  forbidden  ?= """{}<>()|*+.,;:!"'$%&/=?`´#"""
+@new_matcher = ( options ) ->
+  options    ?= {}
+  activator   = options[ 'activator'  ] ? '$'
+  opener      = options[ 'opener'     ] ? '{'
+  closer      = options[ 'closer'     ] ? '}'
+  escaper     = options[ 'escaper'    ] ? '\\'
+  forbidden   = options[ 'forbidden'  ] ? """{}<>()|*+.,;:!"'$%&/=?`´#"""
   #.........................................................................................................
   forbidden   = TEXT.list_of_unique_chrs activator + opener + closer + escaper + forbidden
   forbidden   = ( BAP.escape_regex forbidden.join '' ) + '\\s'
@@ -253,63 +257,98 @@ echo                      = TRM.echo.bind TRM
     ///
 
 #-----------------------------------------------------------------------------------------------------------
-@fill_in = ( template_or_container, matcher, data_or_handler ) ->
+@fill_in = ( template_or_container, matcher, data ) ->
   if TYPES.isa_text template_or_container
-    return @fill_in_template  template_or_container, matcher, data_or_handler
-  return @fill_in_container template_or_container, matcher, data_or_handler
+    return @fill_in_template  template_or_container, matcher, data
+  return @fill_in_container template_or_container, matcher, data
 
 #-----------------------------------------------------------------------------------------------------------
-@fill_in_template = ( template, matcher, data_or_handler ) =>
-  return @_fill_in_template template, ( @_get_matcher_data_and_handler matcher, data_or_handler )...
+@fill_in_template = ( template, matcher, data ) ->
+  return @_fill_in_template template, ( @_get_matcher_and_data matcher, data )...
 
 #-----------------------------------------------------------------------------------------------------------
-@_fill_in_template = ( template, matcher, data, handler ) =>
-  # debug 'template:',  rpr template
-  # debug 'matcher:',   rpr matcher
-  # debug 'data:',      rpr data
-  # debug 'handler:',   rpr handler
+@_fill_in_template = ( template, matcher, data ) ->
+  seen  = {}
+  R     = template
+  loop
+    [ has_matched
+      R           ] = @_fill_in_template_once R, matcher, data
+    return R unless has_matched
+    if seen[ R ]?
+      seen[ R ] = 1
+      seen      = ( rpr result for result of seen ).join '\n'
+      throw new Error """
+        detected circular references in #{rpr template}:
+        #{seen}"""
+    seen[ R ] = 1
+
+#-----------------------------------------------------------------------------------------------------------
+@_fill_in_template_once = ( template, matcher, data ) ->
+  R = template
+  [ position
+    head
+    markup
+    name
+    tail ]    = @_analyze_template template, matcher
+  return [ false, template, ] unless position?
+  name = '/' + name unless name[ 0 ] is '/'
+  [ container
+    key
+    new_value ] = @container_and_facet_from_locator data, name
+  R             = head + ( if TYPES.isa_text new_value then new_value else rpr new_value ) + tail
+  #.........................................................................................................
+  return [ true, R, ]
+
+#-----------------------------------------------------------------------------------------------------------
+@_analyze_template = ( template, matcher ) ->
   #---------------------------------------------------------------------------------------------------------
-  R = template.replace matcher, ( ignored, prefix, markup, bare, bracketed, tail ) =>
-    name = bare ? bracketed
-    return prefix + ( handler null, name ) + tail if handler?
-    name = '/' + name unless name[ 0 ] is '/'
-    [ container
-      key
-      new_value ] = @container_and_facet_from_locator data, name
-    return prefix + ( if TYPES.isa_text new_value then new_value else rpr new_value ) + tail
-  #---------------------------------------------------------------------------------------------------------
-  return R
+  match = template.match matcher
+  return [] unless match?
+  [ ignored
+    prefix
+    markup
+    bare
+    bracketed
+    tail      ] = match
+  position      = match.index + prefix.length
+  name          = bare ? bracketed
+  head          = template[ ... position ]
+  return [ position, head, markup, name, tail, ]
 
 #-----------------------------------------------------------------------------------------------------------
-@fill_in_container = ( container, data_or_handler ) ->
-  [ matcher, data, handler, ] = @_get_matcher_data_and_handler matcher, data_or_handler
-  errors = null
+@fill_in_container = ( container, matcher, data ) ->
+  [ matcher, data, ] = @_get_matcher_and_data matcher, data
+  data   ?= container
+  errors  = null
+  #.........................................................................................................
+  fill_in = ( matcher, sub_container, crumbs, old_value  ) =>
+    does_match  = matcher.test old_value
+    new_value   = @_fill_in_template old_value, matcher, container
+    if does_match
+      if old_value is new_value
+        locator   = '/' + crumbs.join '/'
+        message   = "* unable to resolve #{locator}: #{rpr old_value} (circular reference?)"
+        ( errors  = errors ? {} )[ message ] = 1
+      else
+        [ ..., key, ]         = crumbs
+        sub_container[ key ]  = new_value
+        change_count += 1
   #.........................................................................................................
   loop
     change_count = 0
     #-------------------------------------------------------------------------------------------------------
-    BAP.walk_containers_crumbs_and_values container, ( error, sub_container, crumbs, old_value ) =>
+    @walk_containers_crumbs_and_values container, ( error, sub_container, crumbs, old_value ) =>
       throw error if error?
-      ### TAINT call handler on termination? ###
       return if crumbs is null
       return unless TYPES.isa_text old_value
-      does_match  = @fill_in.matcher.test old_value
-      new_value   = @fill_in old_value, handler ? container
-      if does_match
-        if old_value is new_value
-          locator   = '/' + crumbs.join '/'
-          message   = "* unable to resolve #{locator}: #{rpr old_value} (circular reference?)"
-          ( errors  = errors ? {} )[ message ] = 1
-        else
-          [ ..., key, ]         = crumbs
-          sub_container[ key ]  = new_value
-          change_count += 1
+      fill_in matcher, sub_container, crumbs, old_value
     #-------------------------------------------------------------------------------------------------------
     break if change_count is 0
   #.........................................................................................................
   if errors?
-    throw new Error '\nerrors have occurred:\n' + ( ( m for m of errors ).sort().join '\n' ) + '\n'
-  ### TAINT should be calling handler on error ###
+    error = new Error '\nerrors have occurred:\n' + ( ( m for m of errors ).sort().join '\n' ) + '\n'
+    throw error
+  #.........................................................................................................
   return container
 # @fill_in.container = @fill_in.container.bind @
 
@@ -317,19 +356,9 @@ echo                      = TRM.echo.bind TRM
 #===========================================================================================================
 # HELPERS
 #-----------------------------------------------------------------------------------------------------------
-@_get_matcher_data_and_handler = ( matcher, data_or_handler ) ->
-  if data_or_handler?
-    [ data, handler, ] = @_get_data_and_handler data_or_handler
-  else
-    [ data, handler, ] = @_get_data_and_handler matcher
-    matcher = @default_matcher
-  return [ matcher, data, handler, ]
-
-#-----------------------------------------------------------------------------------------------------------
-@_get_data_and_handler = ( data_or_handler ) ->
-  if TYPES.isa_function data_or_handler
-    return [ null, data_or_handler, ]
-  return [ data_or_handler, null, ]
+@_get_matcher_and_data = ( matcher, data ) ->
+  return [ matcher, data, ] if data?
+  return [ @default_matcher, matcher, ]
 
 #-----------------------------------------------------------------------------------------------------------
 @default_matcher = @new_matcher()

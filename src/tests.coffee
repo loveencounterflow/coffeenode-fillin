@@ -29,17 +29,14 @@ FILLIN                    = require './main'
   data    = 'foo': 'bar'
   matcher = /.*/
   probes  = [
-    [ [ handler, ], [ FILLIN.default_matcher, null, handler, ], ]
-    [ [ matcher, data, ], [ matcher, data, null, ], ]
-    [ [ matcher, handler, ], [ matcher, null, handler, ], ]
-    [ [ data, ], [ FILLIN.default_matcher, data, null, ], ]
+    [ [ data, ], [ FILLIN.default_matcher, data, ], ]
+    [ [ matcher, data, ], [ matcher, data, ], ]
     ]
   assert.notEqual FILLIN.default_matcher, undefined
   for [ parameters, expected, ] in probes
-    result = FILLIN._get_matcher_data_and_handler parameters...
+    result = FILLIN._get_matcher_and_data parameters...
     # log ( TRM.green 'test_argument_retrieval' ), ( TRM.grey parameters ), ( TRM.gold result )
     assert.deepEqual result, expected
-
 
 #-----------------------------------------------------------------------------------------------------------
 @test_standard_syntax_1 = ->
@@ -63,22 +60,74 @@ FILLIN                    = require './main'
     assert.equal result, expected
 
 #-----------------------------------------------------------------------------------------------------------
+@test_data_lists = ->
+  templates_and_expectations = [
+    [ '$name was captain on $0, $1, and $2',      'helo name', ]
+    ]
+  #.........................................................................................................
+  data = [ 'NCC-1701', 'NCC-1701-A', 'NCC-1701-B', ]
+  data[ 'name' ] = 'James T. Kirk'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result = FILLIN.fill_in template, data
+    log ( TRM.green 'test_data_lists' ), ( TRM.grey template ), ( TRM.gold result )
+    # assert.equal result, expected
+
+#-----------------------------------------------------------------------------------------------------------
+@test_recursive_expansions = ->
+  templates_and_expectations = [
+    [ 'i have 2 apples',        'i have 2 apples', ]
+    [ 'i have $two apples',     'i have 2 apples', ]
+    [ 'i have $some apples',    'i have 2 apples', ]
+    [ 'i have ${more} apples',  'i have 3 apples', ]
+    [ 'i have ${/more} apples', 'i have 3 apples', ]
+    ]
+  #.........................................................................................................
+  data =
+    'some':  '$two'
+    'more':  '$three'
+    'two':   '2'
+    'three': '3'
+  #.........................................................................................................
+  matcher = FILLIN.default_matcher
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result_1 = FILLIN.fill_in_template template, matcher, data
+    result_2 = FILLIN.fill_in_template template, data
+    assert.equal result_1, result_2
+    assert.equal result_1, expected
+
+#-----------------------------------------------------------------------------------------------------------
+@test_cycle_detection = ->
+  templates_and_expectations = [
+    [ 'i have $some apples',    'i have 2 apples', ]
+    ]
+  #.........................................................................................................
+  data =
+    'some':  '$more'
+    'more':  '$three'
+    'three': '$some'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    assert.throws ( -> FILLIN.fill_in_template template, data ), /detected circular references/
+
+#-----------------------------------------------------------------------------------------------------------
 @test_custom_syntax_1 = ->
   templates_and_expectations = [
-    [ 'helo name',      'helo name', ]
-    [ 'helo ${name}',   'helo ${name}', ]
-    [ 'helo \\$name',   'helo \\$name', ]
-    [ 'helo \\${name}', 'helo \\${name}', ]
-    [ 'helo ${{name}}', 'helo ${{name}}', ]
-    [ 'helo $name!',    'helo $name!', ]
-    [ 'helo +name!',    'helo Jim!', ]
-    [ 'helo !+name!',   'helo !+name!', ]
-    [ 'helo +(name)!',   'helo Jim!', ]
+    [ 'helo name',        'helo name', ]
+    [ 'helo ${name}',     'helo ${name}', ]
+    [ 'helo \\$name',     'helo \\$name', ]
+    [ 'helo \\${name}',   'helo \\${name}', ]
+    [ 'helo ${{name}}',   'helo ${{name}}', ]
+    [ 'helo $name!',      'helo $name!', ]
+    [ 'helo +name!',      'helo Jim!', ]
+    [ 'helo !+name!',     'helo !+name!', ]
+    [ 'helo +(name)!',    'helo Jim!', ]
     ]
   #.........................................................................................................
   data =
     'name':   'Jim'
-  matcher = FILLIN.new_matcher '+', '(', ')', '!'
+  matcher = FILLIN.new_matcher activator: '+', opener: '(', closer: ')', escaper: '!'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
     result = FILLIN.fill_in template, matcher, data
@@ -86,345 +135,111 @@ FILLIN                    = require './main'
     assert.equal result, expected
 
 #-----------------------------------------------------------------------------------------------------------
-@test_custom_syntax_2 = ->
-  templates_and_expectations = [
-    [ 'helo name',      'helo name', ]
-    [ 'helo ${name}',   'helo ${name}', ]
-    [ 'helo \\$name',   'helo \\$name', ]
-    [ 'helo \\${name}', 'helo \\${name}', ]
-    [ 'helo ${{name}}', 'helo ${{name}}', ]
-    [ 'helo $name!',    'helo $name!', ]
-    [ 'helo +name!',    'helo Jim!', ]
-    [ 'helo !+name!',   'helo !+name!', ]
-    [ 'helo +(name)!',   'helo Jim!', ]
-    ]
+@test_walk_containers_crumbs_and_values = ->
+  d =
+    meaningless: [
+      42
+      43
+      { foo: 1, bar: 2, nested: [ 'a', 'b', ] }
+      45 ]
+    deep:
+      down:
+        in:
+          a:
+            drawer:   'a pen'
+            cupboard: 'a pot'
+            box:      'a pill'
   #.........................................................................................................
-  data =
-    'name':   'Jim'
-  matcher = FILLIN.new_matcher '+', '(', ')', '!'
+  result = []
+  FILLIN.walk_containers_crumbs_and_values d, ( error, container, crumbs, value ) ->
+    throw error if error?
+    if crumbs is null
+      return
+    result.push container: container, crumbs: ( crumb for crumb in crumbs ), value: value
+  # echo JSON.stringify result#, null, '  '
+  assert.deepEqual result, [{"container":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"crumbs":["meaningless",0],"value":42},{"container":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"crumbs":["meaningless",1],"value":43},{"container":{"foo":1,"bar":2,"nested":["a","b"]},"crumbs":["meaningless",2,"foo"],"value":1},{"container":{"foo":1,"bar":2,"nested":["a","b"]},"crumbs":["meaningless",2,"bar"],"value":2},{"container":["a","b"],"crumbs":["meaningless",2,"nested",0],"value":"a"},{"container":["a","b"],"crumbs":["meaningless",2,"nested",1],"value":"b"},{"container":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"crumbs":["meaningless",3],"value":45},{"container":{"drawer":"a pen","cupboard":"a pot","box":"a pill"},"crumbs":["deep","down","in","a","drawer"],"value":"a pen"},{"container":{"drawer":"a pen","cupboard":"a pot","box":"a pill"},"crumbs":["deep","down","in","a","cupboard"],"value":"a pot"},{"container":{"drawer":"a pen","cupboard":"a pot","box":"a pill"},"crumbs":["deep","down","in","a","box"],"value":"a pill"}]
+
+#-----------------------------------------------------------------------------------------------------------
+@test_fill_in_container_1 = ->
+  d =
+    ping1:      '${/ping4}'
+    ping2:      '${/ping3}'
+    ping3:      '${/ping2}'
+    ping4:      '${/ping1}'
+    pong:       '${/ping1}'
   #.........................................................................................................
-  for [ template, expected ] in templates_and_expectations
-    result = FILLIN.fill_in template, matcher, ( error, key ) ->
-      throw error if error?
-      return if key is 'name' then 'Jim' else '???'
-    log ( TRM.green 'test_custom_syntax_1' ), ( TRM.grey template ), ( TRM.gold result )
-    assert.equal result, expected
+  assert.throws ( -> FILLIN.fill_in d ), /errors have occurred/
+
+#-----------------------------------------------------------------------------------------------------------
+@test_fill_in_container_2 = ->
+  d =
+    meaningless: [
+      42
+      43
+      { foo: 1, bar: 2, nested: [ 'a', 'b', ] }
+      45 ]
+    deep:
+      down:
+        in:
+          a:
+            drawer:   '${/my-things/pen}'
+            cupboard: '${/my-things/pot}'
+            box:      '${${locations/for-things}/variable}'
+    'my-things':
+      pen:      'a pen'
+      pot:      'a pot'
+      pill:     'a pill'
+      variable: '${/my-things/pill}'
+    locations:
+      'for-things':   '/my-things'
+  #.........................................................................................................
+  # debug JSON.stringify ( FILLIN.fill_in d )#, null, '  '
+  assert.deepEqual ( FILLIN.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
+
+#-----------------------------------------------------------------------------------------------------------
+@test_fill_in_container_3 = ->
+  d =
+    foo:
+      bar:
+        'baz'
+      gnu:
+        '${bar}'
+  #.........................................................................................................
+  # debug JSON.stringify ( FILLIN.fill_in d )#, null, '  '
+  assert.deepEqual ( FILLIN.fill_in d ), {"foo":{"bar":"baz","gnu":"baz"}}
+
+# #-----------------------------------------------------------------------------------------------------------
+# @test_fill_in_container_4 = ->
+#   d =
+#     weekdays:
+#       'dutch':
+#         'full':         [ 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', ]
+#         'abbreviated':  [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
+#       'english':
+#         'full':         [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ]
+#         'abbreviated':  [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', ]
+#     days: [
+#       language:
+#         'english'
+#       '${${/days/0/language}/full/0}': "Go to work"
+#       ]
+#   #.........................................................................................................
+#   # debug JSON.stringify ( FILLIN.fill_in d ), null, '  '
+
 
 #-----------------------------------------------------------------------------------------------------------
 @main = ->
-  @test_argument_retrieval()
-  @test_standard_syntax_1()
-  @test_custom_syntax_1()
-  @test_custom_syntax_2()
-
-############################################################################################################
-
-# FILLIN  ▶  A helo name helo name
-# FILLIN  ▶  A helo ${name} helo Jim
-# FILLIN  ▶  A helo \${name} helo \${name}
-# FILLIN  ▶  A helo ${{name}} helo ${{name}}
-# FILLIN  ▶  A helo $name! helo Jim!
-# FILLIN  ▶  A helo +name! helo +name!
-# FILLIN  ▶  A helo !+name! helo !+name!
-
-# FILLIN  ▶  B helo name helo name
-# FILLIN  ▶  B helo ${name} helo ${name}
-# FILLIN  ▶  B helo \${name} helo \${name}
-# FILLIN  ▶  B helo ${{name}} helo ${{name}}
-# FILLIN  ▶  B helo $name! helo Jim!
-# FILLIN  ▶  B helo +name! helo +name!
-# FILLIN  ▶  B helo !+name! helo !+name!
-
-
-# for template in templates
-#   log ( TRM.red 'B' ), ( TRM.grey template ), ( TRM.gold custom_fill_in template, data )
-
-
-
-
-
-
-    # echo """\\begin{textblock*}{15mm}[1,0.5](130mm,#{y_position})\\flushright —\\end{textblock*}"""
-
-    #   # TEX.push rows, multicolumn [ 3, 'l', [ month_tex, year, ], ]
-    #   TEX.push rows, multicolumn [ 3, 'l', TEX.new_container [ month_tex, ' ', year, ] ]
-    #   TEX.push rows, next_cell
-    #   TEX.push rows, 'H'
-    #   TEX.push rows, next_cell
-    #   TEX.push rows, multicolumn [ 1, 'r', 'L', ]
-    #   TEX.push rows, next_cell
-    #   TEX.push rows, next_line
-    #   TEX.push rows, hline
-    # #.......................................................................................................
-    # if ( height = trc[ 'hi-water-height' ] )?
-    #   hi_dots.push [ row_idx, height, ]
-    # #.......................................................................................................
-    # if ( height = trc[ 'lo-water-height' ] )?
-    #   lo_dots.push [ row_idx, height, ]
-    # #.......................................................................................................
-    # if moon_quarter?
-    #   trc[ 'moon-quarter' ] = moon_quarter
-    #   moon_quarter                = null
-    # #.......................................................................................................
-    # if last_day is trc[ 'date' ][ 2 ]
-    #   trc[ 'is-new-day' ]   = no
-    #   trc[ 'date' ]         = null
-    #   trc[ 'weekday-idx' ]  = null
-    #   #.....................................................................................................
-    #   if trc[ 'moon-quarter' ]?
-    #     moon_quarter                = trc[ 'moon-quarter' ]
-    #     trc[ 'moon-quarter' ] = null
-    #   #.....................................................................................................
-    #   else
-    #     moon_quarter                = null
-    # #.......................................................................................................
-    # else
-    #   trc[ 'is-new-day' ]   = yes
-    #   last_day                    = trc[ 'date' ][ 2 ]
-    # #.......................................................................................................
-    # TEX.push rows, @new_row trc
-
-############################################################################################################
-# @main() unless module.parent?
-
-
-# OPTIONS = require 'coffeenode-options'
-# TRM.dir OPTIONS
-
-# info OPTIONS.get_app_info()
-# info OPTIONS.get_app_options()
-
-# BAP                       = require 'coffeenode-bitsnpieces'
-
-# d =
-#   'flowers': [ 'roses', 'dandelion', 'tulip', ]
-#   'foo':    42
-#   'bar':    108
-#   'deep':
-#     'one':    1
-#     'two':    2
-#     'three':
-#       'four':   4
-
-
-# debug d
-# info BAP.container_and_facet_from_locator d, '/foo'
-# info BAP.container_and_facet_from_locator d, '/bar'
-# info BAP.container_and_facet_from_locator d, '/deep'
-# info BAP.container_and_facet_from_locator d, '/deep/one'
-# info BAP.container_and_facet_from_locator d, '/deep/two'
-# info BAP.container_and_facet_from_locator d, '/deep/three'
-# info BAP.container_and_facet_from_locator d, '/deep/three/four'
-# try
-#   info BAP.container_and_facet_from_locator d, '/deep/three/four/bar'
-#   throw new Error "missing error"
-# catch error
-#   log TRM.green error[ 'message' ]
-#   log TRM.green 'OK'
-# try
-#   info BAP.container_and_facet_from_locator d, '/deep/four/bar'
-#   throw new Error "missing error"
-# catch error
-#   log TRM.green error[ 'message' ]
-#   log TRM.green 'OK'
-
-
-
-
-# # d = CJSON.load njs_path.join BAP.get_app_home(), 'options.json'
-# options = require njs_path.join BAP.get_app_home(), 'options.json'
-# debug options
-# info BAP.walk_containers_crumbs_and_values options, ( error, container, crumbs, value ) ->
-#   throw error if error?
-#   if crumbs is null
-#     log 'over'
-#     return
-#   log '',
-#     ( TRM.gold '/' + ( crumbs.join '/' ) )
-#     # ( TRM.grey container )
-#     ( TRM.lime rpr value )
-
-# d =
-#   meaningless: [
-#     42
-#     43
-#     { foo: 1, bar: 2, nested: [ 'a', 'b', ] }
-#     45 ]
-#   deep:
-#     down:
-#       in:
-#         a:
-#           drawer:   'a pen'
-#           cupboard: 'a pot'
-#           box:      'a pill'
-
-# BAP.walk_containers_crumbs_and_values d, ( error, container, crumbs, value ) ->
-#   throw error if error?
-#   if crumbs is null
-#     log 'over'
-#     return
-#   locator           = '/' + crumbs.join '/'
-#   # in case you want to mutate values in a container, use:
-#   [ head..., key, ] = crumbs
-#   log "#{locator}:", rpr value
-#   # debug rpr key
-#   if key is 'box'
-#     container[ 'addition' ] = 'yes!'
-#     debug container
-
-# info d
-
-# locators = [
-#   '/meaningless/0'
-#   '/meaningless/1'
-#   '/meaningless/2/foo'
-#   '/meaningless/2/bar'
-#   '/meaningless/2/nested/0'
-#   '/meaningless/2/nested/1'
-#   '/meaningless/3'
-#   '/deep/down/in/a/drawer'
-#   '/deep/down/in/a/cupboard'
-#   '/deep/down/in/a/box'
-# ]
-
-# for locator in locators
-#   [ container
-#     key
-#     value     ] = BAP.container_and_facet_from_locator d, locator
-#   info locator, ( TRM.grey locator ), ( TRM.gold key ), rpr value
-
-# # log BAP.container_and_facet_from_locator 42, '/'
-
-# #-----------------------------------------------------------------------------------------------------------
-# compile_options = ( options ) ->
-#   #---------------------------------------------------------------------------------------------------------
-#   BAP.walk_containers_crumbs_and_values options, ( error, container, crumbs, value ) =>
-#     throw error if error?
-#     if crumbs is null
-#       log 'over'
-#       return
-#     locator           = '/' + crumbs.join '/'
-#     [ ..., key ]      = crumbs
-#     return null unless TYPES.isa_text value
-#     #-------------------------------------------------------------------------------------------------------
-#     TEXT.fill_in value, ( error, fill_in_key, format ) =>
-#       throw error if error?
-#       return null unless key?
-#       debug locator, key, value, fill_in_key, format
-
-# info options
-# compile_options options
-
-# matcher = TEXT.fill_in.get_matcher()
-# templates = [
-#   'foo bar baz'
-#   'foo $bar baz'
-#   'foo ${bar} baz'
-#   'foo ${bar/x/y} baz'
-#   'foo ${bar/x/y} $month baz'
-#   'foo ${bar/x/y/$month}  baz'
-#   '$foo bar baz'
-#   ]
-
-# for template in templates
-#   match = template.match matcher
-#   if match?
-#     [ ignored
-#       prefix
-#       markup
-#       bare
-#       bracketed
-#       tail      ] = match
-#     ### TAINT not correct ###
-#     activator_length = 1
-#     #.......................................................................................................
-#     if bare?
-#       name          = bare
-#       ### TAINT not correct ###
-#       opener_length = 1
-#       closer_length = 1
-#     else
-#       name          = bracketed
-#       opener_length = 0
-#       closer_length = 0
-#     #.......................................................................................................
-#     log TRM.gold template
-#     log TRM.plum template.replace matcher, ( ignored, prefix, markup, bare, bracketed, tail ) ->
-#       return prefix + ( ( new Array markup.length + 1 ).join '_' ) + tail
-#     log TRM.red TEXT.fill_in template, {}
-#     info match[ 1 .. ]
-#   else
-#     whisper template
-
-d =
-  meaningless: [
-    42
-    43
-    { foo: 1, bar: 2, nested: [ 'a', 'b', ] }
-    45 ]
-  deep:
-    down:
-      in:
-        a:
-          drawer:   '${/my-things/pen}'
-          cupboard: '${/my-things/pot}'
-          box:      '${${locations/for-things}/variable}'
-  'my-things':
-    pen:      'a pen'
-    pot:      'a pot'
-    pill:     'a pill'
-    variable: '${/my-things/pill}'
-  locations:
-    'for-things':   '/my-things'
-  ping1:      '${/ping4}'
-  ping2:      '${/ping3}'
-  ping3:      '${/ping2}'
-  ping4:      '${/ping1}'
-  pong:       '${/ping1}'
-
-#   '/meaningless/3'
-#   '/deep/down/in/a/drawer'
-
-
-# TEXT.fill_in.container d
-# debug d
-
-
-
-############################################################################################################
-# @options = CJSON.load njs_path.join BAP.get_app_home(), 'options.json'
-# info BAP.compile_options @options
-
-# info '$foo'.match BAP.compile_options.name_re
-
-# options =
-#   'columns': []
-#   'moon-symbols':
-#     'unicode': [ '⬤', '◐', '◯', '◑', ]
-#     'tex':    [
-#       '\\newmoon'
-#       '\\rightmoon'
-#       '\\fullmoon'
-#       '\\leftmoon' ]
-#   'weekday-names':
-#     'dutch':
-#       'full':         [ 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', ]
-#       'abbreviated':  [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
-#   'month-names':
-#     'dutch':
-#       'full':         [ 'januari', 'februari', 'maart', 'april', 'mei', 'juni',
-#                         'juli', 'augustus', 'september', 'oktober', 'november', 'december', ]
-#       'abbreviated':  [ 'jan', 'feb', 'maart', 'apr', 'mei', 'juni',
-#                         'juli', 'aug', 'sept', 'oct', 'nov', 'dec', ]
-
-
-# echo JSON.stringify options, null, '  '
-
-# debug JSON.parse """{ "foo": "bar", "deep": [ { "zero": true }, 1,2,3] }""", ( key, value ) ->
-#   info @, key#, value
-#   return value
-
-
+  # @test_argument_retrieval()
+  # @test_standard_syntax_1()
+  @test_data_lists()
+  @test_recursive_expansions()
+  @test_cycle_detection()
+  # @test_custom_syntax_1()
+  # @test_walk_containers_crumbs_and_values()
+  # @test_fill_in_container_1()
+  # @test_fill_in_container_2()
+  # @test_fill_in_container_3()
+  # # @test_fill_in_container_4()
 
 
 ############################################################################################################
