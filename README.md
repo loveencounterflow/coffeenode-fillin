@@ -13,8 +13,7 @@ An simple example (in CoffeeScript):
 ````coffeescript
 FI        = require 'coffeenode-fillin'
 template  = 'helo $name!'
-data      =
-  'name':   'Jim'
+data      = 'name': 'Jim'
 
 text = FI.fill_in template, data
 ````
@@ -30,8 +29,8 @@ removed from the output; also notice that expressions with doubled braces pass t
 'helo ${{name}}'   # gives 'helo ${{name}}'
 ````
 
-It's possible to use a list as datasource; given JavaScript's dynamic and object-oriented nature, it's
-possible to mix indexed and named references:
+It's possible to use a list as datasource, and, given JavaScript's dynamic and object-oriented nature, it's
+also possible to mix indexed and named references:
 
 ````coffeescript
 template  = '$name was captain on $0, $1, and $2'
