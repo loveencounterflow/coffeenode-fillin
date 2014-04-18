@@ -235,8 +235,8 @@ echo                      = TRM.echo.bind TRM
   closer      = BAP.escape_regex closer
   escaper     = BAP.escape_regex escaper
   #.........................................................................................................
-  return ///
-    ( [^#{escaper}] | ^ )
+  R = ///
+    ( ^ | #{escaper}#{escaper} | [^#{escaper}] )
     (
       #{activator}
       (?:
@@ -253,8 +253,12 @@ echo                      = TRM.echo.bind TRM
           [^ #{activator}#{opener}#{closer} ]+ ) #{closer}
           )
       )
-      ( [^ #{activator} ]* ) $
+      ( (?: \\\$ | [^ #{activator} ] )* ) $
     ///
+  #.........................................................................................................
+  R[ 'remover' ] = /// #{escaper} ( #{activator} | #{opener} | #{closer} | #{escaper} )  ///g
+  #.........................................................................................................
+  return R
 
 #-----------------------------------------------------------------------------------------------------------
 @fill_in = ( template_or_container, matcher, data ) ->
@@ -273,7 +277,8 @@ echo                      = TRM.echo.bind TRM
   loop
     [ has_matched
       R           ] = @_fill_in_template_once R, matcher, data
-    return R unless has_matched
+    unless has_matched
+      return R.replace matcher.remover, '$1'
     if seen[ R ]?
       seen[ R ] = 1
       seen      = ( rpr result for result of seen ).join '\n'

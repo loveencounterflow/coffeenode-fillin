@@ -25,6 +25,7 @@
   "dependencies": {
     "coffeenode-trm": "^0.1.14",
     "coffeenode-types": "^0.1.1",
-    "coffeenode-text": "^0.1.5"
+    "coffeenode-text": "^0.1.5",
+    "coffeenode-bitsnpieces": "^0.0.22"
   }
 }

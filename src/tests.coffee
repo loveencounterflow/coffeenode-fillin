@@ -41,14 +41,17 @@ FILLIN                    = require './main'
 #-----------------------------------------------------------------------------------------------------------
 @test_standard_syntax_1 = ->
   templates_and_expectations = [
-    [ 'helo name',      'helo name', ]
-    [ 'helo ${name}',   'helo Jim', ]
-    [ 'helo \\$name',   'helo \\$name', ]
-    [ 'helo \\${name}', 'helo \\${name}', ]
-    [ 'helo ${{name}}', 'helo ${{name}}', ]
-    [ 'helo $name!',    'helo Jim!', ]
-    [ 'helo +name!',    'helo +name!', ]
-    [ 'helo !+name!',   'helo !+name!', ]
+    [ 'helo name',          'helo name', ]
+    [ '$name',              'Jim', ]
+    [ 'helo ${name}',       'helo Jim', ]
+    [ 'helo ${name} \\$ {n2}...',       'helo Jim $ {n2}...', ]
+    [ 'helo \\\\${name}',   'helo \\Jim', ]
+    [ 'helo \\$name',       'helo $name', ]
+    [ 'helo \\${name}',     'helo ${name}', ]
+    [ 'helo ${{name}}',     'helo ${{name}}', ]
+    [ 'helo $name!',        'helo Jim!', ]
+    [ 'helo +name!',        'helo +name!', ]
+    [ 'helo !+name!',       'helo !+name!', ]
     ]
   #.........................................................................................................
   data =
@@ -121,7 +124,8 @@ FILLIN                    = require './main'
     [ 'helo ${{name}}',   'helo ${{name}}', ]
     [ 'helo $name!',      'helo $name!', ]
     [ 'helo +name!',      'helo Jim!', ]
-    [ 'helo !+name!',     'helo !+name!', ]
+    [ 'helo !+name!',     'helo +name!', ]
+    [ 'helo !!+name!',     'helo !Jim!', ]
     [ 'helo +(name)!',    'helo Jim!', ]
     ]
   #.........................................................................................................
@@ -168,7 +172,7 @@ FILLIN                    = require './main'
     ping4:      '${/ping1}'
     pong:       '${/ping1}'
   #.........................................................................................................
-  assert.throws ( -> FILLIN.fill_in d ), /errors have occurred/
+  assert.throws ( -> FILLIN.fill_in d ), /detected circular references/
 
 #-----------------------------------------------------------------------------------------------------------
 @test_fill_in_container_2 = ->
@@ -197,7 +201,7 @@ FILLIN                    = require './main'
   assert.deepEqual ( FILLIN.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
 
 #-----------------------------------------------------------------------------------------------------------
-@test_fill_in_container_3 = ->
+@_test_fill_in_container_3 = ->
   d =
     foo:
       bar:
@@ -229,17 +233,22 @@ FILLIN                    = require './main'
 
 #-----------------------------------------------------------------------------------------------------------
 @main = ->
+  for method_name of @
+    continue if method_name is 'main'
+    continue if method_name[ 0 ] is '_'
+    warn method_name
+    @[ method_name ].apply this
   # @test_argument_retrieval()
   # @test_standard_syntax_1()
-  @test_data_lists()
-  @test_recursive_expansions()
-  @test_cycle_detection()
+  # @test_data_lists()
+  # @test_recursive_expansions()
+  # @test_cycle_detection()
   # @test_custom_syntax_1()
   # @test_walk_containers_crumbs_and_values()
   # @test_fill_in_container_1()
   # @test_fill_in_container_2()
   # @test_fill_in_container_3()
-  # # @test_fill_in_container_4()
+  # @test_fill_in_container_4()
 
 
 ############################################################################################################
