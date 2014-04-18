@@ -29,12 +29,12 @@ FILLIN                    = require './main'
   data    = 'foo': 'bar'
   matcher = /.*/
   probes  = [
-    [ [ data, ], [ FILLIN.default_matcher, data, ], ]
-    [ [ matcher, data, ], [ matcher, data, ], ]
+    [ [ data, ], [ data, FILLIN.default_matcher, ], ]
+    [ [ data, matcher, ], [ data, matcher, ], ]
     ]
   assert.notEqual FILLIN.default_matcher, undefined
   for [ parameters, expected, ] in probes
-    result = FILLIN._get_matcher_and_data parameters...
+    result = FILLIN._get_data_and_matcher parameters...
     # log ( TRM.green 'test_argument_retrieval' ), ( TRM.grey parameters ), ( TRM.gold result )
     assert.deepEqual result, expected
 
@@ -95,7 +95,7 @@ FILLIN                    = require './main'
   matcher = FILLIN.default_matcher
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    result_1 = FILLIN.fill_in_template template, matcher, data
+    result_1 = FILLIN.fill_in_template template, data, matcher
     result_2 = FILLIN.fill_in_template template, data
     assert.equal result_1, result_2
     assert.equal result_1, expected
@@ -134,7 +134,7 @@ FILLIN                    = require './main'
   matcher = FILLIN.new_matcher activator: '+', opener: '(', closer: ')', escaper: '!'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    result = FILLIN.fill_in template, matcher, data
+    result = FILLIN.fill_in template, data, matcher
     log ( TRM.green 'test_custom_syntax_1' ), ( TRM.grey template ), ( TRM.gold result )
     assert.equal result, expected
 

@@ -261,22 +261,22 @@ echo                      = TRM.echo.bind TRM
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@fill_in = ( template_or_container, matcher, data ) ->
+@fill_in = ( template_or_container, data, matcher ) ->
   if TYPES.isa_text template_or_container
-    return @fill_in_template  template_or_container, matcher, data
-  return @fill_in_container template_or_container, matcher, data
+    return @fill_in_template  template_or_container, data, matcher
+  return @fill_in_container template_or_container, data, matcher
 
 #-----------------------------------------------------------------------------------------------------------
-@fill_in_template = ( template, matcher, data ) ->
-  return @_fill_in_template template, ( @_get_matcher_and_data matcher, data )...
+@fill_in_template = ( template, data, matcher ) ->
+  return @_fill_in_template template, ( @_get_data_and_matcher data, matcher )...
 
 #-----------------------------------------------------------------------------------------------------------
-@_fill_in_template = ( template, matcher, data ) ->
+@_fill_in_template = ( template, data, matcher ) ->
   seen  = {}
   R     = template
   loop
     [ has_matched
-      R           ] = @_fill_in_template_once R, matcher, data
+      R           ] = @_fill_in_template_once R, data, matcher
     unless has_matched
       return R.replace matcher.remover, '$1'
     if seen[ R ]?
@@ -288,7 +288,7 @@ echo                      = TRM.echo.bind TRM
     seen[ R ] = 1
 
 #-----------------------------------------------------------------------------------------------------------
-@_fill_in_template_once = ( template, matcher, data ) ->
+@_fill_in_template_once = ( template, data, matcher ) ->
   R = template
   [ position
     head
@@ -321,14 +321,14 @@ echo                      = TRM.echo.bind TRM
   return [ position, head, markup, name, tail, ]
 
 #-----------------------------------------------------------------------------------------------------------
-@fill_in_container = ( container, matcher, data ) ->
-  [ matcher, data, ] = @_get_matcher_and_data matcher, data
+@fill_in_container = ( container, data, matcher ) ->
+  [ data, matcher, ] = @_get_data_and_matcher data, matcher
   data   ?= container
   errors  = null
   #.........................................................................................................
   fill_in = ( matcher, sub_container, crumbs, old_value  ) =>
     does_match  = matcher.test old_value
-    new_value   = @_fill_in_template old_value, matcher, container
+    new_value   = @_fill_in_template old_value, container, matcher
     if does_match
       if old_value is new_value
         locator   = '/' + crumbs.join '/'
@@ -361,9 +361,9 @@ echo                      = TRM.echo.bind TRM
 #===========================================================================================================
 # HELPERS
 #-----------------------------------------------------------------------------------------------------------
-@_get_matcher_and_data = ( matcher, data ) ->
-  return [ matcher, data, ] if data?
-  return [ @default_matcher, matcher, ]
+@_get_data_and_matcher = ( data, matcher ) ->
+  return [ data, matcher, ] if matcher?
+  return [ data, @default_matcher, ]
 
 #-----------------------------------------------------------------------------------------------------------
 @default_matcher = @new_matcher()
