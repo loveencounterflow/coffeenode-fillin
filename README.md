@@ -9,29 +9,25 @@ At its simplest level, CoffeeNode FillIn allows to interpolate keyed (i.e. named
 
 An example:
 
-````coffeescript
-$key
-````
 
 ````coffeescript
-James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B
-````
-
-````coffeescript
-data =
+template  = 'helo $name!'
+data      =
   'name':   'Jim'
-
-template = 'helo $name!'
 
 FILLIN.fill_in template, data
 ````
 
 ````coffeescript
 'helo ${name}'     # gives 'helo Jim'
-'helo \\$name'     # gives 'helo \\$name'
-'helo \\${name}'   # gives 'helo \\${name}'
+'helo \$name'      # gives 'helo \$name'
+'helo \${name}'    # gives 'helo \${name}'
 'helo ${{name}}'   # gives 'helo ${{name}}'
 'helo $name!'      # gives 'helo Jim!'
+````
+
+````coffeescript
+James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B
 ````
 
 ````coffeescript
