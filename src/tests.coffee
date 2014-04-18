@@ -65,7 +65,7 @@ FILLIN                    = require './main'
 #-----------------------------------------------------------------------------------------------------------
 @test_data_lists = ->
   templates_and_expectations = [
-    [ '$name was captain on $0, $1, and $2',      'helo name', ]
+    [ '$name was captain on $0, $1, and $2',      'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B', ]
     ]
   #.........................................................................................................
   data = [ 'NCC-1701', 'NCC-1701-A', 'NCC-1701-B', ]
@@ -74,7 +74,7 @@ FILLIN                    = require './main'
   for [ template, expected ] in templates_and_expectations
     result = FILLIN.fill_in template, data
     log ( TRM.green 'test_data_lists' ), ( TRM.grey template ), ( TRM.gold result )
-    # assert.equal result, expected
+    assert.equal result, expected
 
 #-----------------------------------------------------------------------------------------------------------
 @test_recursive_expansions = ->

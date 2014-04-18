@@ -19,14 +19,18 @@ text = FILLIN.fill_in template, data
 ````
 
 Now `text` has the value `helo Jim!`. Here are some variations that demonstrate the results for a number
-of variations on the above; you can see how backslashes
+of variations on the above; you can see how backslashes are used to escape the activator and the get
+removed from the output; also notice that expressions with doubled braces pass through untouched:
 
 ````coffeescript
 'helo ${name}'     # gives 'helo Jim'
-'helo \$name'      # gives 'helo \$name'
-'helo \${name}'    # gives 'helo \${name}'
+'helo \\$name'     # gives 'helo $name'
+'helo \\${name}'   # gives 'helo ${name}'
 'helo ${{name}}'   # gives 'helo ${{name}}'
 ````
+
+It's possible to use a list as datasource; given JavaScript's dynamic and object-oriented nature, it's
+possible to mix indexed and named references:
 
 ````coffeescript
 James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B
