@@ -1,11 +1,11 @@
 
-# CoffeeNode CND Fillin
+# CoffeeNode Fillin
 
 String Interpolation library; also contains methods to fill in key/value pairs of objects and to iterate over nested facets
 
 ## What it does
 
-At its simplest level, CoffeeNode CND Fillin allows to interpolate keyed (i.e. named or indexed) values into templates. The default syntax for quoted keys uses `$` (dollar sign) as the 'activator', `{}` (curly braces) as the (optional) 'opener' and 'closers', and `\` (backslash) as 'escaper'; all of these can be configured.
+At its simplest level, CoffeeNode Fillin allows to interpolate keyed (i.e. named or indexed) values into templates. The default syntax for quoted keys uses `$` (dollar sign) as the 'activator', `{}` (curly braces) as the (optional) 'opener' and 'closers', and `\` (backslash) as 'escaper'; all of these can be configured.
 
 An simple example (in CoffeeScript):
 
