@@ -210,11 +210,11 @@ detected circular references in 'i have $count apples':
 'i have $some apples'
 ````
 The reason we go to these lengths in reporting the source of the error is that can be quite straightforward
-to commit a recursive blunder but much harder to figure out the exact chain of events—in this case,
+to commit a recursive blunder but much harder to figure out the exact chain of events—in this case, the
+process looks like this:
 
+![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
 > Thx to [regexper](http://www.regexper.com/#\%24count%20%28%3F%3A%20\%24some%20\%24more%20\%24three%20%29%2B) for the graphics
-
-![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screenshot%202014-04-19%2002.33.48.png)
 
 
 ## Using Fillin with containers
