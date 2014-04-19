@@ -67,7 +67,7 @@ matcher = FI.new_matcher activator: '+', opener: '(', closer: ')', escaper: '!'
 
 > (all unmentioned values are replaced with their standard values, `$`, `{`, `}`, and `\`; there's an
 > additional parameter `forbidden` that defaults to ``{}<>()|*+.,;:!"'$%&/=?`´#`` and which specifies
-> characters that can not occur in names; it will always be made to include the 'active' charcters of the
+> characters that can not occur in names; it will always be made to include the 'active' characters of the
 > pattern).
 
 This matcher can now be used as an additional argument when calling `FI.fill_in`:
