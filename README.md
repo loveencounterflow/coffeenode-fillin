@@ -9,7 +9,8 @@
 	- [Chained (Recursive) Interpolations](#chained-recursive-interpolations)
 	- [Circular Interpolations](#circular-interpolations)
 - [Using Fillin with containers](#using-fillin-with-containers)
-	- [Simple Demo](#simple-demo)
+	- [Simple Example](#simple-example)
+	- [Advanced Example](#advanced-example)
 - [Bonus Methods](#bonus-methods)
 - [Implementation Details](#implementation-details)
 	- [The RegEx](#the-regex)
@@ -214,7 +215,7 @@ The reason we go to these lengths in reporting the source of the error is that c
 to commit a recursive blunder but much harder to figure out the exact chain of events—in this case, the
 process looks like this:
 
-![thx to [regexper](http://www.regexper.com) for the graphics](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
+![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
 > thx to [regexper](http://www.regexper.com) for the graphics
 
 as becomes obvious from the replacements listing.
@@ -224,13 +225,14 @@ as becomes obvious from the replacements listing.
 The primary use case for CND Fillin is not so much single string interpolation or, beware, HTML templating,
 but, rather, options compilation.
 
-> HTML templating (which has a long pedigree that includes stuff like PHP and JSP) has recently (again)
-> come under fire. I have no intents to make CND Fillin do more than simple, purely declarative stuff—there
-> will never be conditions (well, maybe except for an existential operator), branching, or looping. It feels
+> HTML templating (which has a long pedigree that includes stuff like PHP and JSP) has recently (again) come
+> under fire. I have no intents to make CND Fillin do more than simple, purely declarative stuff—there will
+> never be conditions (well, maybe except for an existential operator), branching, or looping. It feels
 > wrong to me to write yet another language just for templating when we have much more powerful idioms with
-> well-documented properties (personally, i prefer to build my HTML pages in [Teacup](https://github.com/goodeggs/teacup)).
+> well-documented properties (personally, i prefer to build my HTML pages in
+> [Teacup](https://github.com/goodeggs/teacup), which is just CoffeeScript).
 
-### Simple Demo
+### Simple Example
 
 We've already seen how `data` objects are used to act as a data source for a template string. But TND Fillin
 does more if you let it—you can have it fill out values inside a collection (lists or Plain Old
@@ -312,6 +314,32 @@ resolve this issue; one way would be to check whether the template string that i
 replacement has any material around it—in other words, `'$foo'` will have to be replaced by the *value* of
 `data[ 'foo' ]`, but `'xx $foo xx'` will have to be replaced by the *representation* of that same value.
 
+### Advanced Example
+
+Just as with string expansion, you can also apply multiple expansion to object values. For example:
+
+````coffeescript
+data =
+  deep:
+    down:
+      in:
+        a:
+          drawer:   '${/my-things/pen}'
+          cupboard: '${/my-things/pot}'
+          box:      '${${locations/for-things}/variable}'
+  'my-things':
+    pen:      'a pen'
+    pot:      'a pot'
+    pill:     'a pill'
+    variable: '${/my-things/pill}'
+  locations:
+    'for-things':   '/my-things'
+FI.fill_in data
+````
+will make `data[ 'deep' ][ 'down' ][ 'in' ][ 'a' ][ 'box' ] == 'a pill'`. Again, circular substitutions
+and substitutions where a named target can not be found will result in errors.
+
+<!--
 ## Bonus Methods
 
 
@@ -321,10 +349,7 @@ replacement has any material around it—in other words, `'$foo'` will have to b
 @container_and_facet_from_crumbs = ( container, crumbs ) ->
 @set = ( container, locator_or_crumbs, value ) ->
 ````
-
-````coffeescript
-````
-
+ -->
 
 ## Implementation Details
 
