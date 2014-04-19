@@ -3,7 +3,7 @@
 
 String Interpolation library; also contains methods to fill in key/value pairs of objects and to iterate over nested facets
 
-## What it does
+## Using Fillin with Strings
 
 At its simplest level, CoffeeNode Fillin allows to interpolate keyed (i.e. named or indexed) values into templates. The default syntax for quoted keys uses `$` (dollar sign) as the 'activator', `{}` (curly braces) as the (optional) 'opener' and 'closers', and `\` (backslash) as 'escaper'; all of these can be configured.
 
@@ -53,7 +53,8 @@ matcher = FI.new_matcher activator: '+', opener: '(', closer: ')', escaper: '!'
 
 (all unmentioned values are replaced with their standard values, `$`, `{`, `}`, and `\`; there's an
 additional parameter `forbidden` that defaults to ``{}<>()|*+.,;:!"'$%&/=?`´#`` and which specifies
-characters that can not occur in names).
+characters that can not occur in names; it will always be made to include the 'active' charcters of the
+pattern).
 
 This matcher can now be used as an additional argument when calling `FI.fill_in`:
 
@@ -64,13 +65,20 @@ FI.fill_in template, data, matcher # gives 'helo Jim!'
 ````
 
 Escaping has become a tad simpler, as `!` is not a special character in JavaScript, so you can now write
-`!+name' instead of `\\$name`. Of course, whether using these
+`!+name' instead of `\\$name`. Of course, whether using these particular characters is a good idea will
+depend a lot on your data.
 
-For those
-
-
+Finally, to make work with custom syntaxes even simpler, you can use
 ````coffeescript
+fill_in = FI.new_method matcher
 ````
+or, say,
+````coffeescript
+fill_in = FI.new_method escaper: '^'
+````
+to define a `fill_in` method using your custom syntax.
+
+## Using Fillin with containers
 
 ````coffeescript
 ````

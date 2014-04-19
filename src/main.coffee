@@ -215,7 +215,11 @@ echo                      = TRM.echo.bind TRM
 #===========================================================================================================
 # STRING INTERPOLATION
 #-----------------------------------------------------------------------------------------------------------
-# @new_method = ( matcher_hint ) ->
+@new_method = ( matcher_hint ) ->
+  matcher = if TYPES.isa_regex matcher_hint then matcher else @new_matcher matcher_hint
+  R = ( template, data, other_matcher ) =>
+    return @fill_in template, data, ( other_matcher ? matcher )
+  return R.bind @
 
 #-----------------------------------------------------------------------------------------------------------
 ### TAINT use options argument ###
