@@ -254,7 +254,7 @@ data      =
 In this example, we use one 'target' or 'template' object (which happens to be a list) and another object
 used as data source to supply a number of (configurable) named values to build a URL string. Imagine
 you did `data = require '../options'` and you see where this goes (of course, using a string as template
-would've worked just as well in this case—it's just an example).
+would've worked just as well in this case—this is only a stupid example).
 
 You can also use the *same* object as both the target *and* the source:
 
