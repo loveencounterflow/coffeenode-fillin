@@ -1,4 +1,19 @@
 
+
+- [CoffeeNode Fillin](#coffeenode-fillin)
+	- [Using Fillin with Strings](#using-fillin-with-strings)
+		- [Basic Usage](#basic-usage)
+		- [Nested Keys](#nested-keys)
+		- [Chained Replacements](#chained-replacements)
+		- [Circular Replacements](#circular-replacements)
+	- [Using Fillin with containers](#using-fillin-with-containers)
+	- [Bonus Methods](#bonus-methods)
+	- [Implementation Details](#implementation-details)
+		- [The RegEx](#the-regex)
+
+> **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+
 # CoffeeNode Fillin
 
 String Interpolation library; also contains methods to fill in key/value pairs of objects and to iterate over nested facets
@@ -189,8 +204,8 @@ In its more common (and less readable) form, that expression becomes:
 ````
 As i remarked above, there are a few backslashes that could be elided from the source, notably things like
 escapes in character classes à la `[\+]`, which are really equivalent to `[+]` and so on. Notwithstanding,
-it's still quite complex and hard to read. During debugging, i was surprised and glad to find no fewer than
-*two* websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www.debuggex.com/) and
+it's still quite complex and hard to read. During debugging, i was surprised and glad to find
+two websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www.debuggex.com/) and
 [regexper](http://www.regexper.com/#%28^|\\\\|[^\\]%29%28\%24%28%3F%3A%28[^\%24\{\}\\%3C%3E\%28\%29\|\*\%2B\.\%2C%3B%3A!%22%27%25%26\%2F%3D\%3F%60%C2%B4\%23\s]%2B%29|\{%28\\\%24|\\\{|\\\}|[^\%24\{\}]%2B%29\}%29%29%28%28%3F%3A\\\%24|[^\%24]%29*%29%24). This screenshot is taken from the latter website:
 
 ![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screenshot%202014-04-19%2002.33.48.png)
