@@ -9,6 +9,7 @@
 	- [Chained (Recursive) Interpolations](#chained-recursive-interpolations)
 	- [Circular Interpolations](#circular-interpolations)
 - [Using Fillin with containers](#using-fillin-with-containers)
+	- [Simple Demo](#simple-demo)
 - [Bonus Methods](#bonus-methods)
 - [Implementation Details](#implementation-details)
 	- [The RegEx](#the-regex)
@@ -216,8 +217,24 @@ process looks like this:
 ![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
 > Thx to [regexper](http://www.regexper.com) for the graphics
 
+as becomes obvious from the replacements listing.
 
 ## Using Fillin with containers
+
+The primary use case for CND Fillin is not so much single string interpolation or, beware, HTML templating,
+but, rather, options compilation.
+
+> HTML templating (which has a long pedigree that includes stuff like PHP and JSP) has recently (again)
+> come under fire. I have no intents to make CND Fillin do more than simple, purely declarative stuff—there
+> will never be conditions (well, maybe except for an existential operator), branching, or looping. It feels
+> wrong to me to write yet another language just for templating when we have much more powerful idioms with
+> well-documented properties (personally, i prefer to build my HTML pages in [Teacup](https://github.com/goodeggs/teacup)).
+
+### Simple Demo
+
+We've already seen how `data` objects are used to act as a data source for a template string. But TND Fillin
+does more if you let it: You can have it fill out values inside a collection (lists or Plain Old
+Dictionaries) in a quite straightfoward manner:
 
 ## Bonus Methods
 
