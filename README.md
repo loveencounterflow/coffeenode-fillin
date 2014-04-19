@@ -318,7 +318,8 @@ replacement has any material around it—in other words, `'$foo'` will have to b
 The preliminary solution to the above conundrum is to keep values when **(1)** a container (not a string) is
 being interpolated, and **(2)** a value consists of nothing but a name (which may result from nested
 interpolations). This makes the entry `days` in the above example end up as a list (instead of a serialized
-list).
+list). Note that this solution makes it impossible to get a serialized value without padding a template with
+additional characters (like, say, `'+${my-list}+'`).
 
 ### Advanced Example
 
