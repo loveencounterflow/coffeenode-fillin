@@ -214,8 +214,8 @@ The reason we go to these lengths in reporting the source of the error is that c
 to commit a recursive blunder but much harder to figure out the exact chain of events—in this case, the
 process looks like this:
 
-![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
-> Thx to [regexper](http://www.regexper.com) for the graphics
+![thx to [regexper](http://www.regexper.com) for the graphics](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
+> thx to [regexper](http://www.regexper.com) for the graphics
 
 as becomes obvious from the replacements listing.
 
