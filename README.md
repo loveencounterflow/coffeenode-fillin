@@ -6,7 +6,7 @@
 	- [Routes as Keys](#routes-as-keys)
 	- [Indexes as Keys and Multiple Interpolations](#indexes-as-keys-and-multiple-interpolations)
 	- [Nested Interpolations](#nested-interpolations)
-	- [Chained Interpolations](#chained-interpolations)
+	- [Chained (Recursive) Interpolations](#chained-recursive-interpolations)
 	- [Circular Interpolations](#circular-interpolations)
 - [Using Fillin with containers](#using-fillin-with-containers)
 - [Bonus Methods](#bonus-methods)
@@ -131,54 +131,81 @@ data[ 'name' ]  = 'James T. Kirk'
 FI.fill_in template, data` # gives 'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B'
 ````
 
-
+Under the hood, Fillin will replace keys in the template by their values *starting from the right-hand side*
+of the template; in other words, the order of replaced keys in the above example is `$2`, `$1`, `$0`, and
+`$name`. This is important to keep in mind when it comes to the next feature up here, Nested Interpolations.
 
 ### Nested Interpolations
 
-
-### Chained Interpolations
+Nested interpolations occur when there is an interpolation inside of another interpolation. For example:
 
 ````coffeescript
-    [ 'i have 2 apples',        'i have 2 apples', ]
-    [ 'i have $two apples',     'i have 2 apples', ]
-    [ 'i have $some apples',    'i have 2 apples', ]
-    [ 'i have ${more} apples',  'i have 3 apples', ]
-    [ 'i have ${/more} apples', 'i have 3 apples', ]
-    ]
-  #.........................................................................................................
-  data =
-    'some':  '$two'
-    'more':  '$three'
-    'two':   '2'
-    'three': '3'
-  #.........................................................................................................
-  matcher = FILLIN.default_matcher
-  #.........................................................................................................
-  for [ template, expected ] in templates_and_expectations
-    result_1 = FILLIN.fill_in_template template, data, matcher
-    result_2 = FILLIN.fill_in_template template, data
-    assert.equal result_1, result_2
-    assert.equal result_1, expected
+template  = 'i have ${/amounts/$count} apples'
+data      =
+  'count':      'some'
+  'amounts':
+    'some':     '2'
+    'more':     '3'
+
+FI.fill_in_template template, data # gives 'i have 2 apples'
 ````
+Above, we said that interpolations are performed from the right-end of the template; therefore, the first
+replacement that happens here will replace the `$count` in `i have ${/amounts/$count} apples` with the
+value of `data[ 'count' ]`, which is `some`. This replacement yields `i have ${/amounts/some} apples`, with
+one replacement left; accordingly, the next step replaces `${/amounts/some}` with `data[ 'amounts' ][ 'some' ]`,
+which is `2`.
+
+The reason we proceed from right to left now becomes obvious: due to the way the overall syntax has been
+conceived, a given interpolation may affect other interpolations to the *left* of it, but not to the *right*
+of it.
+
+### Chained (Recursive) Interpolations
+
+Related to nested interpolations—which are interpolations that involve more than one replacement steps—are
+chained (or recursive) interpolations. Consider the following setup:
+
+````coffeescript
+template  = 'i have $count apples'
+data      =
+  'count':    '${/amounts/some}'
+  'amounts':
+    'some':     '2'
+    'more':     '3'
+
+FI.fill_in_template template, data # gives 'i have 2 apples'
+````
+As can be seen, the template sports an unpretending `$count` expression. A closer look, however, reveals
+that `data[ 'count' ]` resolves to `${/amounts/some}`, which in itself is an interpolation expression.
+
+After CND Fillin has performed the first step, it will test another time whether the result is final or
+expendable (if that reminds you of the way TeX works, it's not a coincidence), and if so, try and perform
+the required substitution.
 
 ### Circular Interpolations
 
-
+Programmers know about both the power and the pitfalls of recursive programs, and chained interpolations are
+no exception: while they allow you to do significantly more abstract stuff, they also can easily go wrong.
+Luckily, CND Fillin will check for symptoms of circularity and refuse to get stuck in an infinite loop.
+You can test that behavior with a simple setup:
 
 ````coffeescript
-@test_cycle_detection = ->
-  templates_and_expectations = [
-    [ 'i have $some apples',    'i have 2 apples', ]
-    ]
-  #.........................................................................................................
-  data =
-    'some':  '$more'
-    'more':  '$three'
-    'three': '$some'
-  #.........................................................................................................
-  for [ template, expected ] in templates_and_expectations
-    assert.throws ( -> FILLIN.fill_in_template template, data ), /detected circular references/
+template  = 'i have $some apples'
+data      =
+  'count':    '${/amounts/some}'
+  'amounts':
+    'some':     '$more'
+    'more':     '$three'
+    'three':    '$some'
+````
+Given these conditions, an attempt to `FI.fill_in_template template, data` will fail with a carefully
+cafted exception:
 
+````
+test_cycle_detection
+detected circular references in 'i have $some apples':
+'i have $more apples'
+'i have $three apples'
+'i have $some apples'
 ````
 
 ## Using Fillin with containers

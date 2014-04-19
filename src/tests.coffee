@@ -10,7 +10,7 @@ TEXT                      = require 'coffeenode-text'
 TRM                       = require 'coffeenode-trm'
 # FS                        = require 'coffeenode-fs'
 rpr                       = TRM.rpr.bind TRM
-badge                     = 'FILLIN/tests'
+badge                     = 'FI/tests'
 log                       = TRM.get_logger 'plain',     badge
 info                      = TRM.get_logger 'info',      badge
 whisper                   = TRM.get_logger 'whisper',   badge
@@ -20,7 +20,7 @@ warn                      = TRM.get_logger 'warn',      badge
 help                      = TRM.get_logger 'help',      badge
 echo                      = TRM.echo.bind TRM
 assert                    = require 'assert'
-FILLIN                    = require './main'
+FI                        = require './main'
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -29,12 +29,12 @@ FILLIN                    = require './main'
   data    = 'foo': 'bar'
   matcher = /.*/
   probes  = [
-    [ [ data, ], [ data, FILLIN.default_matcher, ], ]
+    [ [ data, ], [ data, FI.default_matcher, ], ]
     [ [ data, matcher, ], [ data, matcher, ], ]
     ]
-  assert.notEqual FILLIN.default_matcher, undefined
+  assert.notEqual FI.default_matcher, undefined
   for [ parameters, expected, ] in probes
-    result = FILLIN._get_data_and_matcher parameters...
+    result = FI._get_data_and_matcher parameters...
     # log ( TRM.green 'test_argument_retrieval' ), ( TRM.grey parameters ), ( TRM.gold result )
     assert.deepEqual result, expected
 
@@ -58,7 +58,7 @@ FILLIN                    = require './main'
     'name':   'Jim'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    result = FILLIN.fill_in template, data
+    result = FI.fill_in template, data
     log ( TRM.green 'test_standard_syntax_1' ), ( TRM.grey template ), ( TRM.gold result )
     assert.equal result, expected
 
@@ -72,10 +72,43 @@ FILLIN                    = require './main'
   data[ 'name' ] = 'James T. Kirk'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    result = FILLIN.fill_in template, data
+    result = FI.fill_in template, data
     log ( TRM.green 'test_data_lists' ), ( TRM.grey template ), ( TRM.gold result )
     assert.equal result, expected
 
+#-----------------------------------------------------------------------------------------------------------
+@test_resolution_order = ->
+  templates_and_expectations = [
+    [ '$name was captain on $0, $1, and $2',      'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B', ]
+    ]
+  #.........................................................................................................
+  data = [ 'NCC-1701', 'NCC-1701-A', 'NCC-1701-B', ]
+  data[ 'name' ] = 'James T. Kirk'
+  matcher = FI.default_matcher
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result = template
+    #.......................................................................................................
+    [ has_matched, result, ] = FI._fill_in_template_once result, data, matcher
+    log ( TRM.green 'test_data_lists' ), ( TRM.gold result )
+    assert.deepEqual [ has_matched, result, ], [ true, '$name was captain on $0, $1, and NCC-1701-B', ]
+    #.......................................................................................................
+    [ has_matched, result, ] = FI._fill_in_template_once result, data, matcher
+    log ( TRM.green 'test_data_lists' ), ( TRM.gold result )
+    assert.deepEqual [ has_matched, result, ], [ true, '$name was captain on $0, NCC-1701-A, and NCC-1701-B', ]
+    #.......................................................................................................
+    [ has_matched, result, ] = FI._fill_in_template_once result, data, matcher
+    log ( TRM.green 'test_data_lists' ), ( TRM.gold result )
+    assert.deepEqual [ has_matched, result, ], [ true, '$name was captain on NCC-1701, NCC-1701-A, and NCC-1701-B', ]
+    #.......................................................................................................
+    [ has_matched, result, ] = FI._fill_in_template_once result, data, matcher
+    log ( TRM.green 'test_data_lists' ), ( TRM.gold result )
+    assert.deepEqual [ has_matched, result, ], [ true, 'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B', ]
+    #.......................................................................................................
+    [ has_matched, result, ] = FI._fill_in_template_once result, data, matcher
+    log ( TRM.green 'test_data_lists' ), ( TRM.gold result )
+    assert.deepEqual [ has_matched, result, ], [ false, 'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B', ]
+    # assert.equal result, expected
 #-----------------------------------------------------------------------------------------------------------
 @test_recursive_expansions = ->
   templates_and_expectations = [
@@ -92,11 +125,11 @@ FILLIN                    = require './main'
     'two':   '2'
     'three': '3'
   #.........................................................................................................
-  matcher = FILLIN.default_matcher
+  matcher = FI.default_matcher
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    result_1 = FILLIN.fill_in_template template, data, matcher
-    result_2 = FILLIN.fill_in_template template, data
+    result_1 = FI.fill_in_template template, data, matcher
+    result_2 = FI.fill_in_template template, data
     assert.equal result_1, result_2
     assert.equal result_1, expected
 
@@ -112,7 +145,45 @@ FILLIN                    = require './main'
     'three': '$some'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    assert.throws ( -> FILLIN.fill_in_template template, data ), /detected circular references/
+    try
+      FI.fill_in_template template, data
+    catch error
+      warn error[ 'message' ]
+    assert.throws ( -> FI.fill_in_template template, data ), /detected circular references/
+
+#-----------------------------------------------------------------------------------------------------------
+@test_multiple_interpolations = ->
+  templates_and_expectations = [
+    [ 'i have $count apples',    'i have 2 apples', ]
+    ]
+  #.........................................................................................................
+  data =
+    'count':    '${/amounts/some}'
+    'amounts':
+      'some':     '2'
+      'more':     '3'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result = FI.fill_in_template template, data
+    log ( TRM.green 'test_multiple_interpolations' ), ( TRM.grey template ), ( TRM.gold result )
+    assert.equal result, expected
+
+#-----------------------------------------------------------------------------------------------------------
+@test_nested_keys = ->
+  templates_and_expectations = [
+    [ 'i have ${/amounts/$count} apples',    'i have 2 apples', ]
+    ]
+  #.........................................................................................................
+  data =
+    'count':      'some'
+    'amounts':
+      'some':     '2'
+      'more':     '3'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result = FI.fill_in_template template, data
+    log ( TRM.green 'test_nested_keys' ), ( TRM.grey template ), ( TRM.gold result )
+    assert.equal result, expected
 
 #-----------------------------------------------------------------------------------------------------------
 @test_custom_syntax_1 = ->
@@ -131,10 +202,10 @@ FILLIN                    = require './main'
   #.........................................................................................................
   data =
     'name':   'Jim'
-  matcher = FILLIN.new_matcher activator: '+', opener: '(', closer: ')', escaper: '!'
+  matcher = FI.new_matcher activator: '+', opener: '(', closer: ')', escaper: '!'
   #.........................................................................................................
   for [ template, expected ] in templates_and_expectations
-    result = FILLIN.fill_in template, data, matcher
+    result = FI.fill_in template, data, matcher
     log ( TRM.green 'test_custom_syntax_1' ), ( TRM.grey template ), ( TRM.gold result )
     assert.equal result, expected
 
@@ -155,7 +226,7 @@ FILLIN                    = require './main'
             box:      'a pill'
   #.........................................................................................................
   result = []
-  FILLIN.walk_containers_crumbs_and_values d, ( error, container, crumbs, value ) ->
+  FI.walk_containers_crumbs_and_values d, ( error, container, crumbs, value ) ->
     throw error if error?
     if crumbs is null
       return
@@ -172,10 +243,10 @@ FILLIN                    = require './main'
     ping4:      '${/ping1}'
     pong:       '${/ping1}'
   #.........................................................................................................
-  assert.throws ( -> FILLIN.fill_in d ), /detected circular references/
+  assert.throws ( -> FI.fill_in d ), /detected circular references/
 
 #-----------------------------------------------------------------------------------------------------------
-@test_nested_keys = ->
+@test_routes = ->
   template = "i have a ${/deep/down/in/a/drawer}."
   data =
     deep:
@@ -186,8 +257,8 @@ FILLIN                    = require './main'
             cupboard: 'pot'
             box:      'pill'
   #.........................................................................................................
-  debug JSON.stringify ( FILLIN.fill_in template, data )#, null, '  '
-  # assert.deepEqual ( FILLIN.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
+  debug JSON.stringify ( FI.fill_in template, data )#, null, '  '
+  # assert.deepEqual ( FI.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
 
 #-----------------------------------------------------------------------------------------------------------
 @test_fill_in_container_2 = ->
@@ -212,8 +283,8 @@ FILLIN                    = require './main'
     locations:
       'for-things':   '/my-things'
   #.........................................................................................................
-  # debug JSON.stringify ( FILLIN.fill_in d )#, null, '  '
-  assert.deepEqual ( FILLIN.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
+  # debug JSON.stringify ( FI.fill_in d )#, null, '  '
+  assert.deepEqual ( FI.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
 
 #-----------------------------------------------------------------------------------------------------------
 @_test_fill_in_container_3 = ->
@@ -224,8 +295,8 @@ FILLIN                    = require './main'
       gnu:
         '${bar}'
   #.........................................................................................................
-  # debug JSON.stringify ( FILLIN.fill_in d )#, null, '  '
-  assert.deepEqual ( FILLIN.fill_in d ), {"foo":{"bar":"baz","gnu":"baz"}}
+  # debug JSON.stringify ( FI.fill_in d )#, null, '  '
+  assert.deepEqual ( FI.fill_in d ), {"foo":{"bar":"baz","gnu":"baz"}}
 
 # #-----------------------------------------------------------------------------------------------------------
 # @test_fill_in_container_4 = ->
@@ -243,7 +314,7 @@ FILLIN                    = require './main'
 #       '${${/days/0/language}/full/0}': "Go to work"
 #       ]
 #   #.........................................................................................................
-#   # debug JSON.stringify ( FILLIN.fill_in d ), null, '  '
+#   # debug JSON.stringify ( FI.fill_in d ), null, '  '
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -253,22 +324,11 @@ FILLIN                    = require './main'
     continue if method_name[ 0 ] is '_'
     warn method_name
     @[ method_name ].apply this
-  # @test_argument_retrieval()
-  # @test_standard_syntax_1()
-  # @test_data_lists()
-  # @test_recursive_expansions()
-  # @test_cycle_detection()
-  # @test_custom_syntax_1()
-  # @test_walk_containers_crumbs_and_values()
-  # @test_fill_in_container_1()
-  # @test_fill_in_container_2()
-  # @test_fill_in_container_3()
-  # @test_fill_in_container_4()
 
 
 ############################################################################################################
 do @main
 
-debug FILLIN.default_matcher.source
+debug FI.default_matcher.source
 
 
