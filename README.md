@@ -376,13 +376,12 @@ As i remarked above, there are a few backslashes that could be elided from the s
 escapes in character classes à la `[\+]`, which are really equivalent to `[+]` and so on. Notwithstanding,
 it's still quite complex and hard to read. During debugging, i was surprised and glad to find
 two websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www.debuggex.com/) and
-[regexper](http://www.regexper.com/#%2f%28%5e%7c%5c%5c%5c%5c%7c%5b%5e%5c%5c%5d%29%28%5c%24%28%3f%3a%28%5b%5e%5c%24%5c%7b%5c%7d%5c%5c%3c%3e%5c%28%5c%29%5c%7c%5c%2a%5c%2b%5c%2e%5c%2c%3b%3a%21%22%27%25%26%5c%2f%3d%5c%3f%60%b4%5c%23%5c%73%5d%2b%29%7c%5c%7b%28%5c%5c%5c%24%7c%5c%5c%5c%7b%7c%5c%5c%5c%7d%7c%5b%5e%5c%24%5c%7b%5c%7d%5d%2b%29%5c%7d%29%29%28%28%3f%3a%5c%5c%5c%24%7c%5b%5e%5c%24%5d%29%2a%29%24%2f). This screenshot is taken from the latter website:
+[regexper](http://www.regexper.com). This screenshot is taken from the latter website:
 
 ![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screenshot%202014-04-19%2002.33.48.png)
 
 > **Note**
-> I've shortened group 3 in the above image considerably to make it more readable. Also, the link to the
-> [regexper site](http://www.regexper.com/#%28^|\\\\|[^\\]%29%28\%24%28%3F%3A%28[^\%24\{\}\\%3C%3E\%28\%29\|\*\%2B\.\%2C%3B%3A!%22%27%25%26\%2F%3D\%3F%60%C2%B4\%23\s]%2B%29|\{%28\\\%24|\\\{|\\\}|[^\%24\{\}]%2B%29\}%29%29%28%28%3F%3A\\\%24|[^\%24]%29*%29%24). should display the Railroad diagram (as [this link](http://www.regexper.com/#abc%2Bdef)), but doesn't. Copy and paste the above regular expression and hit the 'Display' button on that site.
+> I've shortened group 3 in the above image considerably to make it more readable.
 
 The diagrams helped me to reason about the working of the RegEx and to weed out some bugs, so i can say they're valuable tools.
 
