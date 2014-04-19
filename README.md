@@ -179,7 +179,8 @@ that `data[ 'count' ]` resolves to `${/amounts/some}`, which in itself is an int
 
 After CND Fillin has performed the first step, it will test another time whether the result is final or
 expendable (if that reminds you of the way TeX works, it's not a coincidence), and if so, try and perform
-the required substitution.
+the required substitution. This process is repeated over and over, until all expressions have been resolved.
+
 
 ### Circular Interpolations
 
