@@ -155,4 +155,40 @@ through to `FI.new_matcher`.
 
 ## Implementation Details
 
+````coffeescript
+///
+    ( ^ | #{escaper}#{escaper} | [^#{escaper}] )
+    (
+      #{activator}
+      (?:
+        ( [^ #{forbidden} ]+ )
+        |
+        #{opener}
+        (
+          #{escaper}#{activator}
+          |
+          #{escaper}#{opener}
+          |
+          #{escaper}#{closer}
+          |
+          [^ #{activator}#{opener}#{closer} ]+ ) #{closer}
+          )
+      )
+      ( (?: \\\$ | [^ #{activator} ] )* ) $
+    ///
+````
+
+````coffeescript
+(^|\\\\|[^\\])(\$(?:([^\$\{\}\\<>\(\)\|\*\+\.\,;:!"'%&\/=\?`´\#\s]+)|\{(\\\$|\\\{|\\\}|[^\$\{\}]+)\}))((?:\\\$|[^\$])*)$
+````
+
+````regex
+(^|\\\\|[^\\])(\$(?:([^\$\{\}\\<>\(\)\|\*\+\.\,;:!"'%&\/=\?`´\#\s]+)|\{(\\\$|\\\{|\\\}|[^\$\{\}]+)\}))((?:\\\$|[^\$])*)$
+````
+
 ![](https://raw.githubusercontent.com/loveencounterflow/coffeenode-fillin/master/art/Screenshot%202014-04-19%2002.33.48.png)
+
+[Regexper](http://www.regexper.com/#%28^|\\\\|[^\\]%29%28\%24%28%3F%3A%28[^\%24\{\}...]%2B%29|\{%28\\\%24|\\\{|\\\}|[^\%24\{\}]%2B%29\}%29%29%28%28%3F%3A\\\%24|[^\%24]%29*%29%24)
+
+[debuggex](https://www.debuggex.com/)
+
