@@ -233,8 +233,27 @@ but, rather, options compilation.
 ### Simple Demo
 
 We've already seen how `data` objects are used to act as a data source for a template string. But TND Fillin
-does more if you let it: You can have it fill out values inside a collection (lists or Plain Old
-Dictionaries) in a quite straightfoward manner:
+does more if you let it—you can have it fill out values inside a collection (lists or Plain Old
+Dictionaries):
+
+````coffeescript
+template  = [ '$protocol', '://', '$host', ':', '$port', ]
+# or, equivalently:
+template  = [ '${/protocol}', '://', '${/host}', ':', '${/port}', ]
+data      =
+  'protocol':   'http'
+  'host':       'example.com'
+  'port':       '8080'
+  FI.fill_in_container template, data             # gives [ 'http', '://', 'example.com', ':', '8080' ]
+  ( FI.fill_in_container template, data ).join '' # gives 'http://example.com:8080'
+````
+
+In this example, we use one 'target' or 'template' object (which happens to be a list) and another object
+used as data source to supply a number of (configurable) named values to build a URL string. Imagine
+you did `data = require '../options'` and you see where this goes (of course, using a string as template
+would've worked just as well in this case—it's just an example).
+
+You can also use the *same* object as both the target *and* the source for your
 
 ## Bonus Methods
 

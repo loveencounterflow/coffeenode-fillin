@@ -288,8 +288,19 @@ FI                        = require './main'
   assert.deepEqual ( FI.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
 
 #-----------------------------------------------------------------------------------------------------------
-@test_fill_in_list = ->
+@test_fill_in_list_1 = ->
   template  = [ '${/protocol}', '://', '${/host}', ':', '${/port}', ]
+  data      =
+    'protocol':   'http'
+    'host':       'example.com'
+    'port':       '8080'
+  #.........................................................................................................
+  debug JSON.stringify ( FI.fill_in_container template, data )#, null, '  '
+  # assert.deepEqual ( FI.fill_in d ), {"foo":{"bar":"baz","gnu":"baz"}}
+
+#-----------------------------------------------------------------------------------------------------------
+@test_fill_in_list_2 = ->
+  template  = [ '$protocol', '://', '$host', ':', '$port', ]
   data      =
     'protocol':   'http'
     'host':       'example.com'

@@ -194,6 +194,8 @@ echo                      = TRM.echo.bind TRM
     value = undefined
   #.........................................................................................................
   if value is undefined
+    # debug '### container:', container
+    # debug '### key:', key
     throw new Error "unable to resolve key #{rpr key} in locator #{rpr locator}"
   #.........................................................................................................
   return [ container, key, value ] if idx == crumbs.length - 1
@@ -330,11 +332,14 @@ echo                      = TRM.echo.bind TRM
 @fill_in_container = ( container, data, matcher ) ->
   [ data, matcher, ] = @_get_data_and_matcher data, matcher
   data   ?= container
+  # debug '>>> container:', container
+  # debug '>>> data:', data
+  # debug '>>> matcher:', matcher
   errors  = null
   #.........................................................................................................
   fill_in = ( matcher, sub_container, crumbs, old_value  ) =>
     does_match  = matcher.test old_value
-    new_value   = @_fill_in_template old_value, container, matcher
+    new_value   = @_fill_in_template old_value, data, matcher
     if does_match
       if old_value is new_value
         locator   = '/' + crumbs.join '/'
