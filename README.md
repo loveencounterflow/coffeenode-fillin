@@ -82,19 +82,17 @@ to define a `fill_in` method using your custom syntax; RegExes are used as-is, a
 through to `FI.new_matcher`.
 
 > Be warned that writing your own RegExes (rather than having FI compile them
-> for you) is probably not such a good idea (although chances are you're better in Regexology than me)
+> for you) is probably not such a good idea (although chances are you're better in Regexology than me).
 > RegExes that work for FI must satisfy quite a number of requirements:
-> must have exactly five groups that (1) match what comes before the activator, (2) the portion of the
+> they must have exactly five groups that match (1) what comes before the activator, (2) the portion of the
 > string to be replaced, (3) an unparenthized name, if any, (4) a parenthized name, if any, and (5) the
 > rest of the string; furthermore, they are required to match only the *last* occurrence of candidates
 > for expansion, plus they must have an attribute `matcher.remover` which is used to purge the template
 > of escaped active characters.
 
-### Advanced Usage: Multiple Replacements
+### Nested Keys
 
-### Advanced Usage: Circular Replacements
-
-
+### Chained Replacements
 
 ````coffeescript
     [ 'i have 2 apples',        'i have 2 apples', ]
@@ -117,8 +115,13 @@ through to `FI.new_matcher`.
     result_2 = FILLIN.fill_in_template template, data
     assert.equal result_1, result_2
     assert.equal result_1, expected
+````
 
-#-----------------------------------------------------------------------------------------------------------
+### Circular Replacements
+
+
+
+````coffeescript
 @test_cycle_detection = ->
   templates_and_expectations = [
     [ 'i have $some apples',    'i have 2 apples', ]
@@ -136,7 +139,14 @@ through to `FI.new_matcher`.
 
 ## Using Fillin with containers
 
+## Bonus Methods
+
+
 ````coffeescript
+@walk_containers_crumbs_and_values = ( value, handler ) ->
+@container_and_facet_from_locator = ( container, locator ) ->
+@container_and_facet_from_crumbs = ( container, crumbs ) ->
+@set = ( container, locator_or_crumbs, value ) ->
 ````
 
 ````coffeescript
