@@ -301,18 +301,24 @@ With this setup, `FI.fill_in_container data` will give you
     }
   },
   "language": "dutch",
-  "days": "[ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ]",
+  # used to be "days": "[ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ]",
+  "days": [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ],
   "day": "donderdag"
 }
 ````
 
-<strike>Notice that the result of `${/translations/$language/abbreviated}` is probably *not* what you wanted—it's
+~~Notice that the result of `${/translations/$language/abbreviated}` is probably *not* what you wanted—it's
 the *serialization* of that value, *not* the value itself. I consider this a feature as far as some use
 cases are considered (putting the representation of a complex value inside a string) and as a bug as far as
 other use cases go (where you want to copy entire subtrees to a new location). I've yet to decide how to
 resolve this issue; one way would be to check whether the template string that is responsible for the
 replacement has any material around it—in other words, `'$foo'` will have to be replaced by the *value* of
-`data[ 'foo' ]`, but `'xx $foo xx'` will have to be replaced by the *representation* of that same value.</strike>
+`data[ 'foo' ]`, but `'xx $foo xx'` will have to be replaced by the *representation* of that same value.~~
+
+The preliminary solution to the above conundrum is to keep values when **(1)** a container (not a string) is
+being interpolated, and **(2)** a value consist of nothing but a name (which may result from nested
+interpolations). This makes the entry `days` in the above example end up as a list (instead of a serialized
+list).
 
 ### Advanced Example
 
