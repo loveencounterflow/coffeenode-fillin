@@ -214,7 +214,7 @@ to commit a recursive blunder but much harder to figure out the exact chain of e
 process looks like this:
 
 ![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
-> Thx to [regexper](http://www.regexper.com/#\%24count%20%28%3F%3A%20\%24some%20\%24more%20\%24three%20%29%2B) for the graphics
+> Thx to [regexper](http://www.regexper.com) for the graphics
 
 
 ## Using Fillin with containers
