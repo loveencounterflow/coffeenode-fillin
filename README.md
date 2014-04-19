@@ -193,11 +193,11 @@ it's still quite complex and hard to read. During debugging, i was surprised and
 *two* websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www.debuggex.com/) and
 [regexper](http://www.regexper.com/#%28^|\\\\|[^\\]%29%28\%24%28%3F%3A%28[^\%24\{\}\\%3C%3E\%28\%29\|\*\%2B\.\%2C%3B%3A!%22%27%25%26\%2F%3D\%3F%60%C2%B4\%23\s]%2B%29|\{%28\\\%24|\\\{|\\\}|[^\%24\{\}]%2B%29\}%29%29%28%28%3F%3A\\\%24|[^\%24]%29*%29%24). This screenshot is taken from the latter website:
 
-![](https://raw.githubusercontent.com/loveencounterflow/coffeenode-fillin/master/art/Screenshot%202014-04-19%2002.33.48.png)
+![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screenshot%202014-04-19%2002.33.48.png)
 
-**Note**
+> **Note**
+> I've shortened group 3 in the above image considerably to make it more readable. Also, the link to the
+> [regexper site](http://www.regexper.com/#%28^|\\\\|[^\\]%29%28\%24%28%3F%3A%28[^\%24\{\}\\%3C%3E\%28\%29\|\*\%2B\.\%2C%3B%3A!%22%27%25%26\%2F%3D\%3F%60%C2%B4\%23\s]%2B%29|\{%28\\\%24|\\\{|\\\}|[^\%24\{\}]%2B%29\}%29%29%28%28%3F%3A\\\%24|[^\%24]%29*%29%24). should display the Railroad diagram (as [this link](http://www.regexper.com/#abc%2Bdef)), but doesn't. Copy and paste the above regular expression and hit the 'Display' button on that site.
 
-[http://www.regexper.com/#abc%2Bdef](http://www.regexper.com/#abc%2Bdef)
-
-I'm happy to announce that
+The diagrams helped me to reason about the working of the RegEx and to weed out some bugs, so i can say they're valuable tools.
 
