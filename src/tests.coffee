@@ -326,16 +326,17 @@ FI                        = require './main'
   d =
     translations:
       'dutch':
-        'full':         [ 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', ]
-        'abbreviated':  [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
+        'full':         [ 'maandag', 'dinsdag', ]
+        'abbreviated':  [ 'ma', 'di', ]
       'english':
-        'full':         [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ]
-        'abbreviated':  [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', ]
+        'full':         [ 'Monday', 'Tuesday', ]
+        'abbreviated':  [ 'Mo', 'Tu', ]
     language:   'dutch'
     days:       '${/translations/$language/abbreviated}'
-    day:        '${/translations/$language/full/3}'
+    day:        '${/translations/$language/full/1}'
   #.........................................................................................................
-  debug JSON.stringify ( FI.fill_in d ), null, '  '
+  debug JSON.stringify ( FI.fill_in d ) #, null, '  '
+  assert.deepEqual ( FI.fill_in d ), {"translations":{"dutch":{"full":["maandag","dinsdag"],"abbreviated":["ma","di"]},"english":{"full":["Monday","Tuesday"],"abbreviated":["Mo","Tu"]}},"language":"dutch","days":["ma","di"],"day":"dinsdag"}
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -350,6 +351,6 @@ FI                        = require './main'
 ############################################################################################################
 do @main
 
-debug FI.default_matcher.source
+# debug FI.default_matcher.source
 
 

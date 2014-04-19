@@ -153,6 +153,19 @@ echo                      = TRM.echo.bind TRM
   handler null, null, null, null if crumbs.length is 0
 
 #-----------------------------------------------------------------------------------------------------------
+@get = ( container, locator_or_crumbs, fallback ) ->
+  R = ( @get_container_and_facet container, locator_or_crumbs )[ 2 ]
+  if R is undefined
+    return fallback unless fallback is undefined
+    throw new Error "unable to resolve #{rpr locator_or_crumbs}"
+  return R
+
+#-----------------------------------------------------------------------------------------------------------
+@get_container_and_facet = ( container, locator_or_crumbs ) ->
+  return @container_and_facet_from_crumbs   container, locator_or_crumbs if TYPES.isa_list locator_or_crumbs
+  return @container_and_facet_from_locator  container, locator_or_crumbs
+
+#-----------------------------------------------------------------------------------------------------------
 @container_and_facet_from_locator = ( container, locator ) ->
   ### The inverse to @[`walk_containers_crumbs_and_values`](#this.walk_containers_crumbs_and_values), this
   method uses a `locator` to drill down into `container`, recursively applying the 'crumbs' (parts) of
@@ -277,15 +290,20 @@ echo                      = TRM.echo.bind TRM
   return @_fill_in_template template, ( @_get_data_and_matcher data, matcher )...
 
 #-----------------------------------------------------------------------------------------------------------
-@_fill_in_template = ( template, data, matcher ) ->
+@_fill_in_template = ( template, data, matcher, serialize = yes ) ->
   seen      = {}
   R         = template
   seen[ R ] = 1
+  #.........................................................................................................
   loop
+    #.......................................................................................................
+    return R unless TYPES.isa_text R
+    #.......................................................................................................
     [ has_matched
-      R           ] = @_fill_in_template_once R, data, matcher
-    unless has_matched
-      return R.replace matcher.remover, '$1'
+      R           ] = @_fill_in_template_once R, data, matcher, serialize
+    #.......................................................................................................
+    return R.replace matcher.remover, '$1' unless has_matched
+    #.......................................................................................................
     if seen[ R ]?
       # seen[ R ] = 1
       seen      = [ ( rpr result for result of seen )..., rpr R ]
@@ -293,10 +311,11 @@ echo                      = TRM.echo.bind TRM
       throw new Error """
         detected circular references in #{rpr template}:
         #{seen}"""
+    #.......................................................................................................
     seen[ R ] = 1
 
 #-----------------------------------------------------------------------------------------------------------
-@_fill_in_template_once = ( template, data, matcher ) ->
+@_fill_in_template_once = ( template, data, matcher, serialize = yes ) ->
   R = template
   [ position
     head
@@ -304,11 +323,16 @@ echo                      = TRM.echo.bind TRM
     name
     tail ]    = @_analyze_template template, matcher
   return [ false, template, ] unless position?
-  name = '/' + name unless name[ 0 ] is '/'
+  is_full_length_name = head.length is 0 and tail.length is 0
+  name                = '/' + name unless name[ 0 ] is '/'
   [ container
     key
     new_value ] = @container_and_facet_from_locator data, name
-  R             = head + ( if TYPES.isa_text new_value then new_value else rpr new_value ) + tail
+  #.........................................................................................................
+  if is_full_length_name and not serialize
+    R = new_value
+  else
+    R = head + ( if TYPES.isa_text new_value then new_value else rpr new_value ) + tail
   #.........................................................................................................
   return [ true, R, ]
 
@@ -335,11 +359,12 @@ echo                      = TRM.echo.bind TRM
   # debug '>>> container:', container
   # debug '>>> data:', data
   # debug '>>> matcher:', matcher
-  errors  = null
+  errors    = null
+  serialize = no
   #.........................................................................................................
   fill_in = ( matcher, sub_container, crumbs, old_value  ) =>
     does_match  = matcher.test old_value
-    new_value   = @_fill_in_template old_value, data, matcher
+    new_value   = @_fill_in_template old_value, data, matcher, serialize
     if does_match
       if old_value is new_value
         locator   = '/' + crumbs.join '/'
