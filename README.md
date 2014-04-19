@@ -5,6 +5,8 @@ String Interpolation library; also contains methods to fill in key/value pairs o
 
 ## Using Fillin with Strings
 
+### Basic Usage
+
 At its simplest level, CoffeeNode Fillin allows to interpolate keyed (i.e. named or indexed) values into templates. The default syntax for quoted keys uses `$` (dollar sign) as the 'activator', `{}` (curly braces) as the (optional) 'opener' and 'closers', and `\` (backslash) as 'escaper'; all of these can be configured.
 
 An simple example (in CoffeeScript):
@@ -76,11 +78,60 @@ or, say,
 ````coffeescript
 fill_in = FI.new_method escaper: '^'
 ````
-to define a `fill_in` method using your custom syntax.
+to define a `fill_in` method using your custom syntax; RegExes are uased as-is, and options are passed
+through to `FI.new_matcher`.
+
+> Be warned that writing your own RegExes (rather than having FI compile them
+> for you) is probably no such a good idea (although chances are you're better in Regexology than me)—they
+> must have exactly five groups that (1) match what comes before the activator, (2) the portion of the
+> string to be replaced, (3) an unparenthized name, if any, (4) a parenthized name, if any, and (5) the
+> rest of the string; furthermore, they are required to match only the *last* occurrence of candidates
+> for expansion, plus they must have an attribute `matcher.remover` which is used to purge the template
+> of escaped active characters.
+
+### Advanced Usage: Multiple Replacements
+
+### Advanced Usage: Circular Replacements
+
 
 ## Using Fillin with containers
 
 ````coffeescript
+    [ 'i have 2 apples',        'i have 2 apples', ]
+    [ 'i have $two apples',     'i have 2 apples', ]
+    [ 'i have $some apples',    'i have 2 apples', ]
+    [ 'i have ${more} apples',  'i have 3 apples', ]
+    [ 'i have ${/more} apples', 'i have 3 apples', ]
+    ]
+  #.........................................................................................................
+  data =
+    'some':  '$two'
+    'more':  '$three'
+    'two':   '2'
+    'three': '3'
+  #.........................................................................................................
+  matcher = FILLIN.default_matcher
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    result_1 = FILLIN.fill_in_template template, data, matcher
+    result_2 = FILLIN.fill_in_template template, data
+    assert.equal result_1, result_2
+    assert.equal result_1, expected
+
+#-----------------------------------------------------------------------------------------------------------
+@test_cycle_detection = ->
+  templates_and_expectations = [
+    [ 'i have $some apples',    'i have 2 apples', ]
+    ]
+  #.........................................................................................................
+  data =
+    'some':  '$more'
+    'more':  '$three'
+    'three': '$some'
+  #.........................................................................................................
+  for [ template, expected ] in templates_and_expectations
+    assert.throws ( -> FILLIN.fill_in_template template, data ), /detected circular references/
+
 ````
 
 ````coffeescript
