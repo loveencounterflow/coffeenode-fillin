@@ -155,6 +155,8 @@ through to `FI.new_matcher`.
 
 ## Implementation Details
 
+### The RegEx
+
 It took me quite a while to figure out the details of the RegEx that drives the interpolation step of CND
 Fillin. Here it is in CoffeeScript HeRegEx syntax (with variable names to be interpolated, which is so...
 meta):
@@ -189,8 +191,11 @@ As i remarked above, there are a few backslashes that could be elided from the s
 escapes in character classes à la `[\+]`, which are really equivalent to `[+]` and so on. Notwithstanding,
 it's still quite complex and hard to read. During debugging, i was surprised and glad to find no fewer than
 *two* websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www.debuggex.com/) and
-[regexper](http://www.regexper.com/#%28^|\\\\|[^\\]%29%28\%24%28%3F%3A%28[^\%24\{\}...]%2B%29|\{%28\\\%24|\\\{|\\\}|[^\%24\{\}]%2B%29\}%29%29%28%28%3F%3A\\\%24|[^\%24]%29*%29%24). This screenshot is taken from the latter website:
+[regexper](http://www.regexper.com/#%28^|\\\\|[^\\]%29%28\%24%28%3F%3A%28[^\%24\{\}\\%3C%3E\%28\%29\|\*\%2B\.\%2C%3B%3A!%22%27%25%26\%2F%3D\%3F%60%C2%B4\%23\s]%2B%29|\{%28\\\%24|\\\{|\\\}|[^\%24\{\}]%2B%29\}%29%29%28%28%3F%3A\\\%24|[^\%24]%29*%29%24). This screenshot is taken from the latter website:
 
 ![](https://raw.githubusercontent.com/loveencounterflow/coffeenode-fillin/master/art/Screenshot%202014-04-19%2002.33.48.png)
 
+**Note**
+
+I'm happy to announce that
 
