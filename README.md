@@ -155,7 +155,7 @@ through to `FI.new_matcher`.
 
 ## Implementation Details
 
-````coffeescript
+````
 ///
     ( ^ | #{escaper}#{escaper} | [^#{escaper}] )
     (
@@ -176,10 +176,6 @@ through to `FI.new_matcher`.
       )
       ( (?: \\\$ | [^ #{activator} ] )* ) $
     ///
-````
-
-````coffeescript
-(^|\\\\|[^\\])(\$(?:([^\$\{\}\\<>\(\)\|\*\+\.\,;:!"'%&\/=\?`´\#\s]+)|\{(\\\$|\\\{|\\\}|[^\$\{\}]+)\}))((?:\\\$|[^\$])*)$
 ````
 
 ````regex
