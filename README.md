@@ -66,8 +66,8 @@ data      = name: 'Jim'
 FI.fill_in template, data, matcher # gives 'helo Jim!'
 ````
 
-Escaping has become a tad simpler, as `!` is not a special character in JavaScript, so you can now write
-`!+name' instead of `\\$name`. Of course, whether using these particular characters is a good idea will
+Escaping has just become a tad simpler, as `!` is not a special character in JavaScript, so you can now write
+`!+name` instead of `\\$name`. Of course, whether using these particular characters is a good idea will
 depend a lot on your data.
 
 Finally, to make work with custom syntaxes even simpler, you can use
