@@ -378,7 +378,7 @@ it's still quite complex and hard to read. During debugging, i was surprised and
 two websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www.debuggex.com/) and
 [regexper](http://www.regexper.com). This screenshot is taken from the latter website:
 
-![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screenshot%202014-04-19%2002.33.48.png)
+![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/regex-railroad-diagram.png)
 
 > **Note** Group 3 has been abbreviated to make the diagram more readable.
 
