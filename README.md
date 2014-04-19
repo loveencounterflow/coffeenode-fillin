@@ -272,39 +272,18 @@ data =
 ````
 With this setup, `FI.fill_in_container data` will give you
 
-````javascript
-{
-  "translations": {
-    "dutch": {
-      "full": [
-        "maandag",
-        "dinsdag",
-        ...
-      ],
-      "abbreviated": [
-        "ma",
-        "di",
-        ...
-      ]
-    },
-    "english": {
-      "full": [
-        "Monday",
-        "Tuesday",
-        ...
-      ],
-      "abbreviated": [
-        "Mo",
-        "Tu",
-        ...
-      ]
-    }
-  },
-  "language": "dutch",
-  // used to be "days": "[ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ]",
-  "days": [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ],
-  "day": "donderdag"
-}
+````coffeescript
+data =
+  translations:
+    'dutch':
+      'full':         [ 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', ]
+      'abbreviated':  [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
+    'english':
+      'full':         [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ]
+      'abbreviated':  [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', ]
+  language:   'dutch'
+  days:       [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
+  day:        'donderdag'
 ````
 
 ~~Notice that the result of `${/translations/$language/abbreviated}` is probably *not* what you wanted—it's
