@@ -321,23 +321,20 @@ FI                        = require './main'
   # debug JSON.stringify ( FI.fill_in d )#, null, '  '
   assert.deepEqual ( FI.fill_in d ), {"foo":{"bar":"baz","gnu":"baz"}}
 
-# #-----------------------------------------------------------------------------------------------------------
-# @test_fill_in_container_4 = ->
-#   d =
-#     weekdays:
-#       'dutch':
-#         'full':         [ 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', ]
-#         'abbreviated':  [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
-#       'english':
-#         'full':         [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ]
-#         'abbreviated':  [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', ]
-#     days: [
-#       language:
-#         'english'
-#       '${${/days/0/language}/full/0}': "Go to work"
-#       ]
-#   #.........................................................................................................
-#   # debug JSON.stringify ( FI.fill_in d ), null, '  '
+#-----------------------------------------------------------------------------------------------------------
+@test_fill_in_container_4 = ->
+  d =
+    translations:
+      'dutch':
+        'full':         [ 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', ]
+        'abbreviated':  [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
+      'english':
+        'full':         [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ]
+        'abbreviated':  [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', ]
+    language:   'dutch'
+    days:       '${/translations/$language/abbreviated}'
+  #.........................................................................................................
+  debug JSON.stringify ( FI.fill_in d ), null, '  '
 
 
 #-----------------------------------------------------------------------------------------------------------
