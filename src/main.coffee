@@ -276,16 +276,18 @@ echo                      = TRM.echo.bind TRM
 
 #-----------------------------------------------------------------------------------------------------------
 @_fill_in_template = ( template, data, matcher ) ->
-  seen  = {}
-  R     = template
+  seen      = {}
+  R         = template
+  seen[ R ] = 1
   loop
     [ has_matched
       R           ] = @_fill_in_template_once R, data, matcher
     unless has_matched
       return R.replace matcher.remover, '$1'
     if seen[ R ]?
-      seen[ R ] = 1
-      seen      = ( rpr result for result of seen ).join '\n'
+      # seen[ R ] = 1
+      seen      = [ ( rpr result for result of seen )..., rpr R ]
+      seen      = seen.join '\n'
       throw new Error """
         detected circular references in #{rpr template}:
         #{seen}"""

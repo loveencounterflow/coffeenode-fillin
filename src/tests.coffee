@@ -136,10 +136,11 @@ FI                        = require './main'
 #-----------------------------------------------------------------------------------------------------------
 @test_cycle_detection = ->
   templates_and_expectations = [
-    [ 'i have $some apples',    'i have 2 apples', ]
+    [ 'i have $count apples',    'i have 2 apples', ]
     ]
   #.........................................................................................................
   data =
+    'count': '$some'
     'some':  '$more'
     'more':  '$three'
     'three': '$some'

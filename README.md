@@ -178,7 +178,7 @@ As can be seen, the template sports an unpretending `$count` expression. A close
 that `data[ 'count' ]` resolves to `${/amounts/some}`, which in itself is an interpolation expression.
 
 After CND Fillin has performed the first step, it will test another time whether the result is final or
-expendable (if that reminds you of the way TeX works, it's not a coincidence), and if so, try and perform
+expandable (if that reminds you of the way TeX works, it's not a coincidence), and if so, try and perform
 the required substitution. This process is repeated over and over, until all expressions have been resolved.
 
 
@@ -199,15 +199,23 @@ data      =
     'three':    '$some'
 ````
 Given these conditions, an attempt to `FI.fill_in_template template, data` will fail with a carefully
-cafted exception:
+crafted exception:
 
 ````
-test_cycle_detection
-detected circular references in 'i have $some apples':
+detected circular references in 'i have $count apples':
+'i have $count apples'
+'i have $some apples'
 'i have $more apples'
 'i have $three apples'
 'i have $some apples'
 ````
+The reason we go to these lengths in reporting the source of the error is that can be quite straightforward
+to commit a recursive blunder but much harder to figure out the exact chain of events—in this case,
+
+> Thx to [regexper](http://www.regexper.com/#\%24count%20%28%3F%3A%20\%24some%20\%24more%20\%24three%20%29%2B) for the graphics
+
+![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screenshot%202014-04-19%2002.33.48.png)
+
 
 ## Using Fillin with containers
 
