@@ -88,7 +88,7 @@ through to `FI.new_matcher`.
 > string to be replaced, (3) an unparenthized name, if any, (4) a parenthized name, if any, and (5) the
 > rest of the string; furthermore, they are required to match only the *last* occurrence of candidates
 > for expansion, plus they must have an attribute `matcher.remover` which is used to purge the template
-> of escaped active characters.
+> of escaped active characters. See below for a railroad diagram of that beast.
 
 ### Nested Keys
 
@@ -153,4 +153,6 @@ through to `FI.new_matcher`.
 ````
 
 
+## Implementation Details
 
+![](https://raw.githubusercontent.com/loveencounterflow/coffeenode-fillin/master/art/Screenshot%202014-04-19%2002.33.48.png)
