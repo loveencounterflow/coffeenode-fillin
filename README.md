@@ -55,8 +55,7 @@ removed from the output; also notice that expressions with doubled braces pass t
 
 Dollar signs as activators and backslashes as escapers are a widespread choice, but, depending on habits
 and usecases, not always an optimal choice. Especially backslashes have a nasty habit of piling
-up in source code (the RegEx used by CND Fillin has no less than 40 of those, although a few could be
-optimized away)—whenever you want a backslash to appear in your CoffeeScript, JavaScript or JSON source,
+up in source code: whenever you want a backslash to appear in your CoffeeScript, JavaScript or JSON source,
 you have to remember to use *two* backslashes to obtain *one*.
 
 For these reasons, it's possible to define your own templating syntax by calling
