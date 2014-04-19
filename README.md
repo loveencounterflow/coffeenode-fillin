@@ -255,6 +255,63 @@ would've worked just as well in this case—it's just an example).
 
 You can also use the *same* object as both the target *and* the source:
 
+````coffeescript
+data =
+  translations:
+    'dutch':
+      'full':         [ 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag', ]
+      'abbreviated':  [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo', ]
+    'english':
+      'full':         [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ]
+      'abbreviated':  [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', ]
+  language:   'dutch'
+  days:       '${/translations/$language/abbreviated}'
+  day:        '${/translations/$language/full/3}'
+````
+With this setup, `FI.fill_in_container data` will give you
+
+````json
+{
+  "translations": {
+    "dutch": {
+      "full": [
+        "maandag",
+        "dinsdag",
+        ...
+      ],
+      "abbreviated": [
+        "ma",
+        "di",
+        ...
+      ]
+    },
+    "english": {
+      "full": [
+        "Monday",
+        "Tuesday",
+        ...
+      ],
+      "abbreviated": [
+        "Mo",
+        "Tu",
+        ...
+      ]
+    }
+  },
+  "language": "dutch",
+  "days": "[ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ]",
+  "day": "donderdag"
+}
+````
+
+Notice that the result of `${/translations/$language/abbreviated}` is probably *not* what you wanted—it's
+the *serialization* of that value, *not* the value itself. I consider this a feature as far as some use
+cases are considered (putting the representation of a complex value inside a string) and as a bug as far as
+other use cases go (where you want to copy entire subtrees to a new location). I've yet to decide how to
+resolve this issue; one way would be to check whether the template string that is responsible for the
+replacement has any material around it—in other words, `'$foo'` will have to be replaced by the *value* of
+`data[ 'foo' ]`, but `'xx $foo xx'` will have to be replaced by the *representation* of that same value.
+
 ## Bonus Methods
 
 

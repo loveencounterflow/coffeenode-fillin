@@ -333,6 +333,7 @@ FI                        = require './main'
         'abbreviated':  [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su', ]
     language:   'dutch'
     days:       '${/translations/$language/abbreviated}'
+    day:        '${/translations/$language/full/3}'
   #.........................................................................................................
   debug JSON.stringify ( FI.fill_in d ), null, '  '
 
