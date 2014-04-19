@@ -272,7 +272,7 @@ data =
 ````
 With this setup, `FI.fill_in_container data` will give you
 
-````json
+````javascript
 {
   "translations": {
     "dutch": {
@@ -316,7 +316,7 @@ replacement has any material around it—in other words, `'$foo'` will have to b
 `data[ 'foo' ]`, but `'xx $foo xx'` will have to be replaced by the *representation* of that same value.~~
 
 The preliminary solution to the above conundrum is to keep values when **(1)** a container (not a string) is
-being interpolated, and **(2)** a value consist of nothing but a name (which may result from nested
+being interpolated, and **(2)** a value consists of nothing but a name (which may result from nested
 interpolations). This makes the entry `days` in the above example end up as a list (instead of a serialized
 list).
 
