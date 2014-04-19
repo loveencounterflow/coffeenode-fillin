@@ -3,10 +3,11 @@
 - [CoffeeNode Fillin](#coffeenode-fillin)
 - [Using Fillin with Strings](#using-fillin-with-strings)
 	- [Basic Usage](#basic-usage)
-	- [Nested Keys](#nested-keys)
-	- [Multiple Replacements](#multiple-replacements)
-	- [Chained Replacements](#chained-replacements)
-	- [Circular Replacements](#circular-replacements)
+	- [Routes as Keys](#routes-as-keys)
+	- [Indexes as Keys and Multiple Interpolations](#indexes-as-keys-and-multiple-interpolations)
+	- [Nested Interpolations](#nested-interpolations)
+	- [Chained Interpolations](#chained-interpolations)
+	- [Circular Interpolations](#circular-interpolations)
 - [Using Fillin with containers](#using-fillin-with-containers)
 - [Bonus Methods](#bonus-methods)
 - [Implementation Details](#implementation-details)
@@ -49,16 +50,6 @@ removed from the output; also notice that expressions with doubled braces pass t
 'helo ${{name}}'   # gives 'helo ${{name}}'
 ````
 
-It's possible to use a list as datasource, and, given JavaScript's dynamic and object-oriented nature, it's
-also possible to mix indexed and named references:
-
-````coffeescript
-template  = '$name was captain on $0, $1, and $2'
-data      = [ 'NCC-1701', 'NCC-1701-A', 'NCC-1701-B', ]
-# now `FI.fill_in template, data` gives
-# 'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B'
-````
-
 Dollar signs as activators and backslashes as escapers are a widespread choice, but, depending on habits
 and usecases, not always an optimal choice. Especially backslashes have a nasty habit of piling
 up in source code (the RegEx used by CND Fillin has no less than 40 of those, although a few could be
@@ -71,10 +62,10 @@ For these reasons, it's possible to define your own templating syntax by calling
 matcher = FI.new_matcher activator: '+', opener: '(', closer: ')', escaper: '!'
 ````
 
-(all unmentioned values are replaced with their standard values, `$`, `{`, `}`, and `\`; there's an
-additional parameter `forbidden` that defaults to ``{}<>()|*+.,;:!"'$%&/=?`´#`` and which specifies
-characters that can not occur in names; it will always be made to include the 'active' charcters of the
-pattern).
+> (all unmentioned values are replaced with their standard values, `$`, `{`, `}`, and `\`; there's an
+> additional parameter `forbidden` that defaults to ``{}<>()|*+.,;:!"'$%&/=?`´#`` and which specifies
+> characters that can not occur in names; it will always be made to include the 'active' charcters of the
+> pattern).
 
 This matcher can now be used as an additional argument when calling `FI.fill_in`:
 
@@ -108,7 +99,7 @@ through to `FI.new_matcher`.
 > for expansion, plus they must have an attribute `matcher.remover` which is used to purge the template
 > of escaped active characters. See below for a railroad diagram of that beast.
 
-### Nested Keys
+### Routes as Keys
 
 The previous examples all used 'simple' keys, but in fact, you can use routes (a.k.a. locators or paths) as
 keys:
@@ -126,11 +117,26 @@ data      =
 FI.fill_in template, data # gives 'I have a pen.'
 ````
 
-### Multiple Replacements
+### Indexes as Keys and Multiple Interpolations
+
+Let's show off two more (unrelated) features of CND Fillin: **(1)** A template can have more than a single
+interpolation, and **(2)** it's possible to use a list as datasource and refer to items numerically (and,
+given JavaScript's dynamic and object-oriented nature, it's also possible to mix indexed and named
+references):
+
+````coffeescript
+template        = '$name was captain on $0, $1, and $2'
+data            = [ 'NCC-1701', 'NCC-1701-A', 'NCC-1701-B', ]
+data[ 'name' ]  = 'James T. Kirk'
+FI.fill_in template, data` # gives 'James T. Kirk was captain on NCC-1701, NCC-1701-A, and NCC-1701-B'
+````
 
 
 
-### Chained Replacements
+### Nested Interpolations
+
+
+### Chained Interpolations
 
 ````coffeescript
     [ 'i have 2 apples',        'i have 2 apples', ]
@@ -155,7 +161,7 @@ FI.fill_in template, data # gives 'I have a pen.'
     assert.equal result_1, expected
 ````
 
-### Circular Replacements
+### Circular Interpolations
 
 
 
