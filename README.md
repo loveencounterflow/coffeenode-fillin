@@ -21,7 +21,7 @@
 
 ## CoffeeNode Fillin
 
-CoffeeNode Fillin is a String Interpolation library; also contains methods to fill in key/value pairs of
+CoffeeNode Fillin is a String Interpolation library; it also contains methods to fill in key/value pairs of
 objects and to iterate over nested facets. It may be used e.g. to produce texts with variable contents
 or to compile configuration objects.
 
@@ -29,7 +29,7 @@ or to compile configuration objects.
 
 ### Basic Usage
 
-At its simplest level, CoffeeNode Fillin allows to interpolate keyed (i.e. named or indexed) values into templates. The default syntax for quoted keys uses `$` (dollar sign) as the 'activator', `{}` (curly braces) as the (optional) 'opener' and 'closers', and `\` (backslash) as 'escaper'; all of these can be configured.
+At its simplest level, CoffeeNode Fillin allows to interpolate keyed (i.e. named or indexed) values into templates. The default syntax for quoted keys uses `$` (dollar sign) as the 'activator', `{}` (curly braces) as the (optional) 'opener' and 'closer', and `\` (backslash) as 'escaper'; all of these can be configured.
 
 An simple example (in CoffeeScript):
 
@@ -380,8 +380,7 @@ two websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www
 
 ![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screenshot%202014-04-19%2002.33.48.png)
 
-> **Note**
-> I've shortened group 3 in the above image considerably to make it more readable.
+> **Note** Group 3 has been abbreviated to make the diagram more readable.
 
 The diagrams helped me to reason about the working of the RegEx and to weed out some bugs, so i can say they're valuable tools.
 

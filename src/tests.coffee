@@ -349,8 +349,8 @@ FI                        = require './main'
 
 
 ############################################################################################################
-do @main
+@main()
 
-# debug FI.default_matcher.source
+debug FI.default_matcher#.source
 
 

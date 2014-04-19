@@ -262,14 +262,14 @@ echo                      = TRM.echo.bind TRM
         ( [^ #{forbidden} ]+ )
         |
         #{opener}
-        (
-          #{escaper}#{activator}
-          |
-          #{escaper}#{opener}
-          |
-          #{escaper}#{closer}
-          |
-          [^ #{activator}#{opener}#{closer} ]+ ) #{closer}
+        ( (?:
+                  #{escaper}#{activator}
+                  |
+                  #{escaper}#{opener}
+                  |
+                  #{escaper}#{closer}
+                  |
+                  [^ #{activator}#{opener}#{closer} ] )+ ) #{closer}
           )
       )
       ( (?: \\\$ | [^ #{activator} ] )* ) $
