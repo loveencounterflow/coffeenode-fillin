@@ -301,7 +301,7 @@ With this setup, `FI.fill_in_container data` will give you
     }
   },
   "language": "dutch",
-  # used to be "days": "[ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ]",
+  // used to be "days": "[ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ]",
   "days": [ 'ma', 'di', 'wo', 'do', 'vr', 'za', 'zo' ],
   "day": "donderdag"
 }
