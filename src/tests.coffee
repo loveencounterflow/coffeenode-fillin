@@ -175,6 +175,21 @@ FILLIN                    = require './main'
   assert.throws ( -> FILLIN.fill_in d ), /detected circular references/
 
 #-----------------------------------------------------------------------------------------------------------
+@test_nested_keys = ->
+  template = "i have a ${/deep/down/in/a/drawer}."
+  data =
+    deep:
+      down:
+        in:
+          a:
+            drawer:   'pen'
+            cupboard: 'pot'
+            box:      'pill'
+  #.........................................................................................................
+  debug JSON.stringify ( FILLIN.fill_in template, data )#, null, '  '
+  # assert.deepEqual ( FILLIN.fill_in d ), {"meaningless":[42,43,{"foo":1,"bar":2,"nested":["a","b"]},45],"deep":{"down":{"in":{"a":{"drawer":"a pen","cupboard":"a pot","box":"a pill"}}}},"my-things":{"pen":"a pen","pot":"a pot","pill":"a pill","variable":"a pill"},"locations":{"for-things":"/my-things"}}
+
+#-----------------------------------------------------------------------------------------------------------
 @test_fill_in_container_2 = ->
   d =
     meaningless: [

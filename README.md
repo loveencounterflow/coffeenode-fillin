@@ -4,6 +4,7 @@
 - [Using Fillin with Strings](#using-fillin-with-strings)
 	- [Basic Usage](#basic-usage)
 	- [Nested Keys](#nested-keys)
+	- [Multiple Replacements](#multiple-replacements)
 	- [Chained Replacements](#chained-replacements)
 	- [Circular Replacements](#circular-replacements)
 - [Using Fillin with containers](#using-fillin-with-containers)
@@ -16,7 +17,9 @@
 
 ## CoffeeNode Fillin
 
-String Interpolation library; also contains methods to fill in key/value pairs of objects and to iterate over nested facets
+CoffeeNode Fillin is a String Interpolation library; also contains methods to fill in key/value pairs of
+objects and to iterate over nested facets. It may be used e.g. to produce texts with variable contents
+or to compile configuration objects.
 
 ## Using Fillin with Strings
 
@@ -106,6 +109,26 @@ through to `FI.new_matcher`.
 > of escaped active characters. See below for a railroad diagram of that beast.
 
 ### Nested Keys
+
+The previous examples all used 'simple' keys, but in fact, you can use routes (a.k.a. locators or paths) as
+keys:
+
+````coffeescript
+template  = "i have a ${/deep/down/in/a/drawer}."
+data      =
+  deep:
+    down:
+      in:
+        a:
+          drawer:   'pen'
+          cupboard: 'pot'
+          box:      'pill'
+FI.fill_in template, data # gives 'I have a pen.'
+````
+
+### Multiple Replacements
+
+
 
 ### Chained Replacements
 
