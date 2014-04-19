@@ -77,11 +77,11 @@ data      = name: 'Jim'
 FI.fill_in template, data, matcher # gives 'helo Jim!'
 ````
 
-Escaping has just become a tad simpler, as `!` is not a special character in JavaScript, so you can now write
-`!+name` instead of `\\$name`. Of course, whether using these particular characters is a good idea will
-depend a lot on your data.
+Escaping has just become a tad simpler, as `!` is not a special character in JavaScript strings, so you can
+now write `!+name` instead of `\\$name`. Of course, whether using these particular characters is a good idea
+will depend a lot on your data.
 
-Finally, to make work with custom syntaxes even simpler, you can use
+Finally, to make working with custom syntaxes even simpler, you can use
 ````coffeescript
 fill_in = FI.new_method matcher
 ````
