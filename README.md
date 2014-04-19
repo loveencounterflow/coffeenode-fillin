@@ -197,5 +197,7 @@ it's still quite complex and hard to read. During debugging, i was surprised and
 
 **Note**
 
+[http://www.regexper.com/#abc%2Bdef](http://www.regexper.com/#abc%2Bdef)
+
 I'm happy to announce that
 
