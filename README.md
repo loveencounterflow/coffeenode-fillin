@@ -1,20 +1,20 @@
 
 
 - [CoffeeNode Fillin](#coffeenode-fillin)
-	- [Using Fillin with Strings](#using-fillin-with-strings)
-		- [Basic Usage](#basic-usage)
-		- [Nested Keys](#nested-keys)
-		- [Chained Replacements](#chained-replacements)
-		- [Circular Replacements](#circular-replacements)
-	- [Using Fillin with containers](#using-fillin-with-containers)
-	- [Bonus Methods](#bonus-methods)
-	- [Implementation Details](#implementation-details)
-		- [The RegEx](#the-regex)
+- [Using Fillin with Strings](#using-fillin-with-strings)
+	- [Basic Usage](#basic-usage)
+	- [Nested Keys](#nested-keys)
+	- [Chained Replacements](#chained-replacements)
+	- [Circular Replacements](#circular-replacements)
+- [Using Fillin with containers](#using-fillin-with-containers)
+- [Bonus Methods](#bonus-methods)
+- [Implementation Details](#implementation-details)
+	- [The RegEx](#the-regex)
 
 > **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
 
-# CoffeeNode Fillin
+## CoffeeNode Fillin
 
 String Interpolation library; also contains methods to fill in key/value pairs of objects and to iterate over nested facets
 
