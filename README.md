@@ -78,11 +78,12 @@ or, say,
 ````coffeescript
 fill_in = FI.new_method escaper: '^'
 ````
-to define a `fill_in` method using your custom syntax; RegExes are uased as-is, and options are passed
+to define a `fill_in` method using your custom syntax; RegExes are used as-is, and options are passed
 through to `FI.new_matcher`.
 
 > Be warned that writing your own RegExes (rather than having FI compile them
-> for you) is probably no such a good idea (although chances are you're better in Regexology than me)—they
+> for you) is probably not such a good idea (although chances are you're better in Regexology than me)
+> RegExes that work for FI must satisfy quite a number of requirements:
 > must have exactly five groups that (1) match what comes before the activator, (2) the portion of the
 > string to be replaced, (3) an unparenthized name, if any, (4) a parenthized name, if any, and (5) the
 > rest of the string; furthermore, they are required to match only the *last* occurrence of candidates
