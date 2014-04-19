@@ -295,7 +295,7 @@ FI                        = require './main'
     'host':       'example.com'
     'port':       '8080'
   #.........................................................................................................
-  debug JSON.stringify ( FI.fill_in template, data )#, null, '  '
+  debug JSON.stringify ( FI.fill_in_container template, data )#, null, '  '
   # assert.deepEqual ( FI.fill_in d ), {"foo":{"bar":"baz","gnu":"baz"}}
 
 #-----------------------------------------------------------------------------------------------------------

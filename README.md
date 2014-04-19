@@ -210,7 +210,7 @@ detected circular references in 'i have $count apples':
 'i have $three apples'
 'i have $some apples'
 ````
-The reason we go to these lengths in reporting the source of the error is that can be quite straightforward
+The reason we go to these lengths in reporting the source of the error is that can be quite easy
 to commit a recursive blunder but much harder to figure out the exact chain of events—in this case, the
 process looks like this:
 
