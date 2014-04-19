@@ -94,7 +94,6 @@ through to `FI.new_matcher`.
 ### Advanced Usage: Circular Replacements
 
 
-## Using Fillin with containers
 
 ````coffeescript
     [ 'i have 2 apples',        'i have 2 apples', ]
@@ -134,9 +133,13 @@ through to `FI.new_matcher`.
 
 ````
 
+## Using Fillin with containers
+
 ````coffeescript
 ````
 
 ````coffeescript
 ````
+
+
 
