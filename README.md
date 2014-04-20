@@ -149,7 +149,7 @@ data      =
     'some':     '2'
     'more':     '3'
 
-FI.fill_in_template template, data # gives 'i have 2 apples'
+FI.fill_in template, data # gives 'i have 2 apples'
 ````
 Above, we said that interpolations are performed from the right-end of the template; therefore, the first
 replacement that happens here will replace the `$count` in `i have ${/amounts/$count} apples` with the
@@ -174,7 +174,7 @@ data      =
     'some':     '2'
     'more':     '3'
 
-FI.fill_in_template template, data # gives 'i have 2 apples'
+FI.fill_in template, data # gives 'i have 2 apples'
 ````
 As can be seen, the template sports an unpretending `$count` expression. A closer look, however, reveals
 that `data[ 'count' ]` resolves to `${/amounts/some}`, which in itself is an interpolation expression.
@@ -192,33 +192,29 @@ Luckily, CND Fillin will check for symptoms of circularity and refuse to get stu
 You can test that behavior with a simple setup:
 
 ````coffeescript
-template  = 'i have $some apples'
+template  = 'i have $count apples'
 data      =
   'count':    '${/amounts/some}'
   'amounts':
-    'some':     '$more'
-    'more':     '$three'
-    'three':    '$some'
+    'some':     '${/amounts/more}'
+    'more':     '${/amounts/three}'
+    'three':    '${/amounts/some}'
+
+FI.fill_in template, data
 ````
-Given these conditions, an attempt to `FI.fill_in_template template, data` will fail with a carefully
-crafted exception:
+This will fail with a carefully crafted exception:
 
 ````
-detected circular references in 'i have $count apples':
+Error: detected circular references in 'i have $count apples':
 'i have $count apples'
-'i have $some apples'
-'i have $more apples'
-'i have $three apples'
-'i have $some apples'
+'i have ${/amounts/some} apples'
+'i have ${/amounts/more} apples'
+'i have ${/amounts/three} apples'
+'i have ${/amounts/some} apples'
 ````
 The reason we go to these lengths in reporting the source of the error is that can be quite easy
-to commit a recursive blunder but much harder to figure out the exact chain of events—in this case, the
-process looks like this:
+to commit a recursive blunder but much harder to figure out the exact chain of events.
 
-![](https://github.com/loveencounterflow/coffeenode-fillin/raw/master/art/Screen%20Shot%202014-04-19%20at%2015.10.19.png)
-> thx to [regexper](http://www.regexper.com) for the graphics
-
-as becomes obvious from the replacements listing.
 
 ## Using Fillin with containers
 
