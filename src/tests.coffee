@@ -353,12 +353,12 @@ FI                        = require './main'
 
 debug FI.default_matcher#.source
 
-template  = 'i have $count apples'
-data      =
-  'count':    '${/amounts/some}'
-  'amounts':
-    'some':     '${/amounts/more}'
-    'more':     '${/amounts/three}'
-    'three':    '${/amounts/some}'
+# template  = 'i have $count apples'
+# data      =
+#   'count':    '${/amounts/some}'
+#   'amounts':
+#     'some':     '${/amounts/more}'
+#     'more':     '${/amounts/three}'
+#     'three':    '${/amounts/some}'
 
-FI.fill_in template, data
+# FI.fill_in template, data
