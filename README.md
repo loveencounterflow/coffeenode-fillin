@@ -242,8 +242,8 @@ data      =
   'protocol':   'http'
   'host':       'example.com'
   'port':       '8080'
-  FI.fill_in_container template, data             # gives [ 'http', '://', 'example.com', ':', '8080' ]
-  ( FI.fill_in_container template, data ).join '' # gives 'http://example.com:8080'
+  FI.fill_in template, data             # gives [ 'http', '://', 'example.com', ':', '8080' ]
+  ( FI.fill_in template, data ).join '' # gives 'http://example.com:8080'
 ````
 
 In this example, we use one 'target' or 'template' object (which happens to be a list) and another object
@@ -266,7 +266,7 @@ data =
   days:       '${/translations/$language/abbreviated}'
   day:        '${/translations/$language/full/3}'
 ````
-With this setup, `FI.fill_in_container data` will give you
+With this setup, `FI.fill_in data` will give you
 
 ````coffeescript
 data =
