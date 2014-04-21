@@ -350,14 +350,14 @@ meta):
         ( [^ #{forbidden} ]+ )
         |
         #{opener}
-        (
-          #{escaper}#{activator}
-          |
-          #{escaper}#{opener}
-          |
-          #{escaper}#{closer}
-          |
-          [^ #{activator}#{opener}#{closer} ]+ ) #{closer}
+        ( (?:
+                  #{escaper}#{activator}
+                  |
+                  #{escaper}#{opener}
+                  |
+                  #{escaper}#{closer}
+                  |
+                  [^ #{activator}#{opener}#{closer} ] )+ ) #{closer}
           )
       )
       ( (?: \\\$ | [^ #{activator} ] )* ) $
@@ -365,7 +365,7 @@ meta):
 ````
 In its more common (and less readable) form, that expression becomes:
 ````regex
-/(^|\\\\|[^\\])(\$(?:([^\$\{\}\\<>\(\)\|\*\+\.\,;:!"'%&\/=\?`´\#\s]+)|\{(\\\$|\\\{|\\\}|[^\$\{\}]+)\}))((?:\\\$|[^\$])*)$/
+/(^|\\\\|[^\\])(\$(?:([^\$\{\}\\<>\(\)\|\*\+\.\,;:!"'%&\/=\?`´\#\s]+)|\{((?:\\\$|\\\{|\\\}|[^\$\{\}])+)\}))((?:\\\$|[^\$])*)$/
 ````
 As i remarked above, there are a few backslashes that could be elided from the source, notably things like
 escapes in character classes à la `[\+]`, which are really equivalent to `[+]` and so on. Notwithstanding,
