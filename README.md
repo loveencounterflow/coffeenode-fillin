@@ -367,7 +367,7 @@ In its more common (and less readable) form, that expression becomes:
 ````regex
 /(^|\\\\|[^\\])(\$(?:([^\$\{\}\\<>\(\)\|\*\+\.\,;:!"'%&\/=\?`´\#\s]+)|\{((?:\\\$|\\\{|\\\}|[^\$\{\}])+)\}))((?:\\\$|[^\$])*)$/
 ````
-As i remarked above, there are a few backslashes that could be elided from the source, notably things like
+There are certainly a few backslashes that could be elided from the source, notably things like
 escapes in character classes à la `[\+]`, which are really equivalent to `[+]` and so on. Notwithstanding,
 it's still quite complex and hard to read. During debugging, i was surprised and glad to find
 two websites that offer free RegEx-to-Diagram conversion, [debuggex](https://www.debuggex.com/) and
