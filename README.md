@@ -343,25 +343,25 @@ meta):
 
 ````
 ///
-    ( ^ | #{escaper}#{escaper} | [^#{escaper}] )
-    (
-      #{activator}
-      (?:
-        ( [^ #{forbidden} ]+ )
+  ( ^ | #{escaper}#{escaper} | [^#{escaper}] )
+  (
+    #{activator}
+    (?:
+      ( [^ #{forbidden} ]+ )
+      |
+      #{opener}
+      ( (?:
+        #{escaper}#{activator}
         |
-        #{opener}
-        ( (?:
-                  #{escaper}#{activator}
-                  |
-                  #{escaper}#{opener}
-                  |
-                  #{escaper}#{closer}
-                  |
-                  [^ #{activator}#{opener}#{closer} ] )+ ) #{closer}
-          )
+        #{escaper}#{opener}
+        |
+        #{escaper}#{closer}
+        |
+        [^ #{activator}#{opener}#{closer} ] )+ ) #{closer}
       )
-      ( (?: \\\$ | [^ #{activator} ] )* ) $
-    ///
+    )
+    ( (?: \\\$ | [^ #{activator} ] )* ) $
+  ///
 ````
 In its more common (and less readable) form, that expression becomes:
 ````regex
